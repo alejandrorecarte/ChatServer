@@ -1,6 +1,6 @@
 package controllers;
 
-import Chat.controllers.handlers.HandlerHostServer;
+import controllers.handlers.HandlerHostServer;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -9,13 +9,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.SocketException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class mainFrame {
     private JPanel hostPanel;
@@ -51,10 +48,29 @@ public class mainFrame {
     private BufferedReader clientReader;
     private PrintWriter clientWriter;
     private BufferedReader consoleReader;
+    private ArrayList<String> preferences;
 
 
     public mainFrame() {
+        try {
+            preferences = Streams.importarPreferences();
+            hostPortField.setText(preferences.get(0));
+            hostPasswordField.setText(preferences.get(1));
+            joinIPField.setText(preferences.get(2));
+            joinPortField.setText(preferences.get(3));
+            joinPasswordField.setText(preferences.get(4));
+            joinUsernameField.setText(preferences.get(5));
+        }catch(Exception e){
+            preferences = new ArrayList<String>();
+            preferences.add(hostPortField.getText());
+            preferences.add(hostPasswordField.getText());
+            preferences.add(joinIPField.getText());
+            preferences.add(joinPortField.getText());
+            preferences.add(joinPasswordField.getText());
+            preferences.add(joinUsernameField.getText());
 
+            e.printStackTrace();
+        }
         createServerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -90,6 +106,23 @@ public class mainFrame {
                     } catch (Exception ex){
                         ex.printStackTrace();
                     }
+                }
+            }
+        });
+
+        savePreferencesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    preferences.set(0, hostPortField.getText());
+                    preferences.set(1, hostPasswordField.getText());
+                    preferences.set(2, joinIPField.getText());
+                    preferences.set(3, joinPortField.getText());
+                    preferences.set(4, joinPasswordField.getText());
+                    preferences.set(5, joinUsernameField.getText());
+                    Streams.exportarPreferences(preferences);
+                }catch (Exception ex){
+                    ex.printStackTrace();
                 }
             }
         });
@@ -141,19 +174,16 @@ public class mainFrame {
 
                     String username = joinUsernameField.getText();
 
-                    System.out.println("Connected to the server. Type 'exit' to quit.");
                     clientMessages.add("Connected to the server. Type 'exit' to quit.");
 
                     Thread receiverThread = new Thread(() -> {
                         try {
                             String serverMessage;
                             while ((serverMessage = clientReader.readLine()) != null) {
-                                System.out.println(serverMessage);
                                 clientMessages.add(serverMessage);
                             }
                         } catch (SocketException e){
                             if(e.getMessage().equals("Socket closed"))
-                                System.out.println("-- Exited from server.");
                                 clientMessages.add("-- Exited from server.");
                         } catch (IOException e) {
                             e.printStackTrace();

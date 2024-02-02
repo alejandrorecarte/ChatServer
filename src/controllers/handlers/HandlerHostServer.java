@@ -1,4 +1,4 @@
-package Chat.controllers.handlers;
+package controllers.handlers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,14 +31,16 @@ public class HandlerHostServer extends Thread {
                 if (message == null) {
                     return;
                 }
-                System.out.println(message);
-                Chat.controllers.mainFrame.serverMessages.add(message);
-
+                System.out.println("(" +socket.getInetAddress() + ")" + message);
+                controllers.mainFrame.serverMessages.add("(" +socket.getInetAddress() + ")" + message);
                 broadcast(message, writer);
+                Thread.sleep(100);
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
             if (writer != null) {
                 writers.remove(writer);
             }
@@ -53,9 +55,7 @@ public class HandlerHostServer extends Thread {
 
     private static void broadcast(String message, PrintWriter messageWriter) {
         for (PrintWriter writer : writers) {
-            if(writer.equals(messageWriter)){
-                writer.println("-- Message Sent");
-            }else{
+            if(!writer.equals(messageWriter)){
                 writer.println(message);
             }
         }

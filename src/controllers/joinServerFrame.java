@@ -3,6 +3,8 @@ package controllers;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 
@@ -19,16 +21,31 @@ public class joinServerFrame {
         this.username = username;
         messages  = new LinkedList<String>();
         actualizar();
-
         sendButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e){
-                if(!messageTextArea.getText().equals("")) {
-                    writer.println("> " + username + ": " + messageTextArea.getText());
-                    mainFrame.clientMessages.add("> " + username + ": " + messageTextArea.getText());
+                sendMessage(writer);
+            }
+        });
+
+        messageTextArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    sendMessage(writer);
+                    messageTextArea.setText("");
                 }
             }
         });
+    }
+
+    private void sendMessage(PrintWriter writer){
+        if(!messageTextArea.getText().equals("")) {
+            writer.println("> " + username + ": " + messageTextArea.getText());
+            mainFrame.clientMessages.add("> " + username + ": " + messageTextArea.getText());
+            messageTextArea.setText("");
+        }
     }
 
     public void actualizar() {
@@ -60,7 +77,7 @@ public class joinServerFrame {
             try {
                 controllers.joinServerFrame.messages.add(controllers.mainFrame.clientMessages.getLast());
                 chatOutputTextArea.append(controllers.joinServerFrame.messages.getLast() + "\n");
-                System.out.println(controllers.joinServerFrame.messages.get(controllers.hostServerFrame.messages.size() - 1));
+                System.out.println(controllers.joinServerFrame.messages.get(controllers.joinServerFrame.messages.size() - 1));
                 chatOutputTextArea.repaint();
                 chatOutputTextArea.revalidate();
                 Thread.sleep(200);
