@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="controllers.joinServerFrame">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridBagLayout">
+    <constraints>
+      <xy x="20" y="20" width="515" height="415"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <component id="ed59e" class="javax.swing.JLabel" binding="chatServerLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="1.0"/>
+        </constraints>
+        <properties>
+          <text value="Chat Server"/>
+        </properties>
+      </component>
+      <scrollpane id="bff6e">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag top="3" left="10" bottom="3" right="10" weightx="1.0" weighty="5.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="20a7d" class="javax.swing.JTextArea" binding="chatOutputTextArea">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
+      </scrollpane>
+      <component id="df4af" class="javax.swing.JButton" binding="sendButton" default-binding="true">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <gridbag top="3" left="3" bottom="10" right="10" weightx="1.0" weighty="0.1"/>
+        </constraints>
+        <properties>
+          <text value="Send"/>
+        </properties>
+      </component>
+      <scrollpane id="d99b6">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag top="3" left="10" bottom="10" right="3" weightx="8.0" weighty="0.1"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="c360f" class="javax.swing.JTextArea" binding="messageTextArea">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
+      </scrollpane>
+    </children>
+  </grid>
+</form>
