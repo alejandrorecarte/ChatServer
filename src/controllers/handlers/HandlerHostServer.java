@@ -1,5 +1,7 @@
 package controllers.handlers;
 
+import controllers.mainFrame;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,10 +33,16 @@ public class HandlerHostServer extends Thread {
                 if (message == null) {
                     return;
                 }
-                System.out.println("(" +socket.getInetAddress() + ")" + message);
-                controllers.mainFrame.serverMessages.add("(" +socket.getInetAddress() + ")" + message);
-                broadcast(message, writer);
-                Thread.sleep(100);
+                try {
+                    if (message.split("/")[1].equals("requestHashedPassword")) {
+                        writer.println("HashedPassword: " + mainFrame.hostHashedPassword);
+                    }
+                }catch(ArrayIndexOutOfBoundsException e){
+                    System.out.println("(" +socket.getInetAddress() + ")" + message);
+                    controllers.mainFrame.serverMessages.add("(" +socket.getInetAddress() + ")" + message);
+                    broadcast(message, writer);
+                    Thread.sleep(100);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -2,6 +2,11 @@ package controllers;
 
 import controllers.handlers.HandlerHostServer;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +14,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.KeySpec;
 import java.util.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -49,6 +57,8 @@ public class mainFrame {
     private PrintWriter clientWriter;
     private BufferedReader consoleReader;
     private ArrayList<String> preferences;
+    public static String clientHashedPassword;
+    public static String hostHashedPassword;
 
 
     public mainFrame() {
@@ -68,7 +78,6 @@ public class mainFrame {
             preferences.add(joinPortField.getText());
             preferences.add(joinPasswordField.getText());
             preferences.add(joinUsernameField.getText());
-
             e.printStackTrace();
         }
         createServerButton.addActionListener(new ActionListener() {
@@ -81,7 +90,8 @@ public class mainFrame {
                     hostServerFrame.pack();
                     hostServerFrame.setVisible(true);
                     hostServerFrame.setBounds(0, 0, 600, 400);
-
+                    hostHashedPassword = hashPassword(hostPasswordField.getText());
+                    serverMessages = new LinkedList<String>();
                     startServer();
                 }
             }
@@ -96,12 +106,13 @@ public class mainFrame {
                         clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         consoleReader = new BufferedReader(new InputStreamReader(System.in));
-                        hostServerFrame = new JFrame("Chat Client");
-                        hostServerFrame.setContentPane(new joinServerFrame(joinUsernameField.getText(), clientWriter).mainPanel);
-                        hostServerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        hostServerFrame.pack();
-                        hostServerFrame.setVisible(true);
-                        hostServerFrame.setBounds(0, 0, 600, 400);
+                        clientServerFrame = new JFrame("Chat Client");
+                        clientServerFrame.setContentPane(new joinServerFrame(joinUsernameField.getText(), clientWriter).mainPanel);
+                        clientServerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        clientServerFrame.pack();
+                        clientServerFrame.setBounds(0, 0, 600, 400);
+                        clientHashedPassword = hashPassword(joinPasswordField.getText());
+                        clientMessages = new LinkedList<String>();
                         joinServer();
                     } catch (Exception ex){
                         ex.printStackTrace();
@@ -174,32 +185,29 @@ public class mainFrame {
 
                     String username = joinUsernameField.getText();
 
-                    clientMessages.add("Connected to the server. Type 'exit' to quit.");
-
-                    Thread receiverThread = new Thread(() -> {
-                        try {
-                            String serverMessage;
-                            while ((serverMessage = clientReader.readLine()) != null) {
-                                clientMessages.add(serverMessage);
+                        Thread receiverThread = new Thread(() -> {
+                            try {
+                                String serverMessage;
+                                while ((serverMessage = clientReader.readLine()) != null) {
+                                    clientMessages.add(serverMessage);
+                                }
+                            } catch (SocketException e) {
+                                if (e.getMessage().equals("Socket closed"))
+                                    clientMessages.add("-- Exited from server.");
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        } catch (SocketException e){
-                            if(e.getMessage().equals("Socket closed"))
-                                clientMessages.add("-- Exited from server.");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                    receiverThread.start();
+                        });
+                        receiverThread.start();
 
-                    String userInput;
-                    while ((userInput = consoleReader.readLine()) != null) {
-                        if ("exit".equalsIgnoreCase(userInput)) {
-                            break;
+                        String userInput;
+                        while ((userInput = consoleReader.readLine()) != null) {
+                            if ("exit".equalsIgnoreCase(userInput)) {
+                                break;
+                            }
+                            clientWriter.println("> " + username + ": " + userInput);
+                            clientMessages.add("> " + username + ": " + userInput);
                         }
-                        clientWriter.println("> " + username + ": " + userInput);
-                        clientMessages.add("> " + username + ": " + userInput);
-                    }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -213,6 +221,77 @@ public class mainFrame {
             }
         };
         worker.execute();
+    }
+
+    public static String hashPassword(String password) {
+        try {
+            // Obtener una instancia de MessageDigest con el algoritmo SHA-256
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            // Convertir la contraseña a bytes y aplicar el hash
+            byte[] hashedBytes = md.digest(password.getBytes());
+
+            // Convertir los bytes hasheados a una representación hexadecimal manualmente
+            StringBuilder stringBuilder = new StringBuilder();
+            for (byte b : hashedBytes) {
+                stringBuilder.append(String.format("%02X", b));
+            }
+
+            return stringBuilder.toString();
+        } catch (NoSuchAlgorithmException e) {
+            // Manejar la excepción si el algoritmo no está disponible
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String encrypt(String plainText, String password) {
+        try {
+            // Generar una clave secreta basada en la contraseña usando PBKDF2
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), "salt".getBytes(), 65536, 256);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
+
+            // Inicializar el cifrado
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+            // Cifrar el texto
+            byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
+
+            // Convertir los bytes cifrados a una representación base64
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String decrypt(String cipherText, String password) {
+        try {
+            // Generar una clave secreta basada en la contraseña usando PBKDF2
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), "salt".getBytes(), 65536, 256);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
+
+            // Inicializar el cifrado para descifrar
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+            // Decodificar la representación base64 del texto cifrado
+            byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
+
+            // Descifrar los bytes
+            byte[] decryptedBytes = cipher.doFinal(cipherBytes);
+
+            // Convertir los bytes descifrados a una cadena
+            return new String(decryptedBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
 
