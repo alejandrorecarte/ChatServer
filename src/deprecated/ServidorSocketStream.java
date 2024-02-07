@@ -1,4 +1,4 @@
-package controllers;
+package deprecated;
 
 import java.net.ServerSocket;
 import java.net.Socket;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="controllers.joinServerFrame">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="controllers.frameControllers.JoinServerFrame">
   <grid id="27dc6" binding="mainPanel" layout-manager="GridBagLayout">
     <constraints>
       <xy x="20" y="20" width="515" height="415"/>
@@ -26,7 +26,9 @@
         <children>
           <component id="20a7d" class="javax.swing.JTextArea" binding="chatOutputTextArea">
             <constraints/>
-            <properties/>
+            <properties>
+              <editable value="false"/>
+            </properties>
           </component>
         </children>
       </scrollpane>
@@ -47,7 +49,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="c360f" class="javax.swing.JTextArea" binding="messageTextArea">
+          <component id="30b09" class="javax.swing.JTextField" binding="chatInputField">
             <constraints/>
             <properties/>
           </component>

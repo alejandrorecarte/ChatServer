@@ -1,26 +1,26 @@
-package controllers;
+package controllers.frameControllers;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 
-public class joinServerFrame {
+import static controllers.Encoding.decrypt;
+import static controllers.Encoding.encrypt;
+
+public class JoinServerFrame {
     public JPanel mainPanel;
     private JLabel chatServerLabel;
     private JButton sendButton;
-    private JTextArea messageTextArea;
     private JTextArea chatOutputTextArea;
+    private JTextField chatInputField;
     public String username;
     private static LinkedList<String> messages;
     private boolean access;
     private SwingWorker<Void, Void> worker;
     private PrintWriter writer;
 
-    public joinServerFrame(String username, PrintWriter writer) {
+    public JoinServerFrame(String username, PrintWriter writer) {
         this.username = username;
         this.writer = writer;
         access = false;
@@ -35,23 +35,35 @@ public class joinServerFrame {
             }
         });
 
-        messageTextArea.addKeyListener(new KeyAdapter() {
+        chatInputField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
                 if(e.getKeyCode() == KeyEvent.VK_ENTER){
                     sendMessage(writer);
-                    messageTextArea.setText("");
+                    chatInputField.setText("");
+                }
+            }
+        });
+
+        MainFrame.clientServerFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int confirm = JOptionPane.showConfirmDialog(MainFrame.clientServerFrame, "Do you want to exit this chat server?", "Exit confirmation", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    sendMessage(encrypt("-- " + username + " left the server.", MainFrame.clientHashedPassword), writer);
+                } else {
+                    MainFrame.clientServerFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
                 }
             }
         });
     }
 
     private void sendMessage(PrintWriter writer){
-        if(!messageTextArea.getText().equals("")) {
-            writer.println("> " + username + ": " + messageTextArea.getText());
-            mainFrame.clientMessages.add("> " + username + ": " + messageTextArea.getText());
-            messageTextArea.setText("");
+        if(!chatInputField.getText().equals("")) {
+            writer.println(encrypt("> " + username + ": " + chatInputField.getText(), MainFrame.clientHashedPassword));
+            MainFrame.clientMessages.add(encrypt("> " + username + ": " + chatInputField.getText(), MainFrame.clientHashedPassword));
+            chatInputField.setText("");
         }
     }
 
@@ -88,13 +100,13 @@ public class joinServerFrame {
     }
 
     public synchronized void actualizarChat(){
-        if (controllers.joinServerFrame.messages.size() < (controllers.mainFrame.clientMessages.size())) {
+        if (JoinServerFrame.messages.size() < (MainFrame.clientMessages.size())) {
             try {
-                controllers.joinServerFrame.messages.add(controllers.mainFrame.clientMessages.getLast());
-                chatOutputTextArea.append(controllers.joinServerFrame.messages.getLast() + "\n");
+                JoinServerFrame.messages.add(MainFrame.clientMessages.getLast());
+                chatOutputTextArea.append(decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword) + "\n");
                 chatOutputTextArea.repaint();
                 chatOutputTextArea.revalidate();
-                Thread.sleep(200);
+                Thread.sleep(100);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -106,18 +118,18 @@ public class joinServerFrame {
         if (!access) {
             try {
                 Thread.sleep(100);
-                if (!controllers.mainFrame.clientMessages.getLast().split(" ")[1].equals(controllers.mainFrame.clientHashedPassword)) {
-                    JOptionPane.showMessageDialog(mainFrame.clientServerFrame, "The password is incorrect", "Error", JOptionPane.ERROR_MESSAGE);
-                    controllers.mainFrame.clientServerFrame.dispose();
+                if (!MainFrame.clientMessages.getLast().split(" ")[1].equals(MainFrame.clientHashedPassword)) {
+                    JOptionPane.showMessageDialog(MainFrame.clientServerFrame, "The password is incorrect", "Error", JOptionPane.ERROR_MESSAGE);
+                    MainFrame.clientServerFrame.dispose();
                     return false;
                 } else {
                     access = true;
                     chatOutputTextArea.setText("");
                     messages = new LinkedList<String>();
-                    mainFrame.clientMessages = new LinkedList<String>();
-                    mainFrame.clientMessages.add("Connected to the server. Type 'exit' to quit.");
-                    sendMessage("-- " + username + " joined the server.", writer);
-                    controllers.mainFrame.clientServerFrame.setVisible(true);
+                    MainFrame.clientMessages = new LinkedList<String>();
+                    MainFrame.clientMessages.add(encrypt("Connected to the server. Type 'exit' to quit.", MainFrame.clientHashedPassword));
+                    sendMessage(encrypt("-- " + username + " joined the server.", MainFrame.clientHashedPassword), writer);
+                    MainFrame.clientServerFrame.setVisible(true);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

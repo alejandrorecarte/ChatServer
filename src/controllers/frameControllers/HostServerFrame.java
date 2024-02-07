@@ -1,4 +1,6 @@
-package controllers;
+package controllers.frameControllers;
+
+import controllers.handlers.HandlerHostServer;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -8,7 +10,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-public class hostServerFrame {
+import static controllers.Encoding.encrypt;
+
+public class HostServerFrame {
     private JLabel chatServerLabel;
     private JTextArea chatOutputTextArea;
     public JPanel mainPanel;
@@ -16,17 +20,19 @@ public class hostServerFrame {
     public static LinkedList<String> messages = new LinkedList<String>();;
     private static final Set<PrintWriter> writers = new HashSet<>();
 
-    public hostServerFrame() {
+    public HostServerFrame() {
         actualizar();
         stopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    mainFrame.serverSocket.close();
+                    HandlerHostServer.broadcastServerMessage("-- Server closed");
+                    Thread.sleep(100);
+                    MainFrame.serverSocket.close();
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
-                mainFrame.hostServerFrame.dispose();
+                MainFrame.hostServerFrame.dispose();
             }
         });
     }
@@ -56,11 +62,11 @@ public class hostServerFrame {
     }
 
     public synchronized void actualizarChat(){
-        if (controllers.hostServerFrame.messages.size() < (controllers.mainFrame.serverMessages.size())) {
+        if (HostServerFrame.messages.size() < (MainFrame.serverMessages.size())) {
             try {
-                controllers.hostServerFrame.messages.add(controllers.mainFrame.serverMessages.getLast());
-                chatOutputTextArea.append(controllers.hostServerFrame.messages.getLast() + "\n");
-                System.out.println(controllers.hostServerFrame.messages.get(controllers.hostServerFrame.messages.size() - 1));
+                HostServerFrame.messages.add(MainFrame.serverMessages.getLast());
+                chatOutputTextArea.append(HostServerFrame.messages.getLast() + "\n");
+                System.out.println(HostServerFrame.messages.get(HostServerFrame.messages.size() - 1));
                 chatOutputTextArea.repaint();
                 chatOutputTextArea.revalidate();
                 Thread.sleep(200);

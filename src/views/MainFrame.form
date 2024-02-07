@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="controllers.mainFrame">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="controllers.frameControllers.MainFrame">
   <grid id="27dc6" binding="mainPanel" layout-manager="GridBagLayout">
     <constraints>
       <xy x="20" y="20" width="500" height="445"/>
@@ -35,7 +35,7 @@
           </component>
           <component id="6deca" class="javax.swing.JButton" binding="createServerButton" default-binding="true">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
               <gridbag top="3" left="10" bottom="10" right="10" weightx="1.0" weighty="5.0"/>
             </constraints>
             <properties>
@@ -53,8 +53,8 @@
           </component>
           <component id="d318b" class="javax.swing.JLabel" binding="hostAChatServerLabel">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-              <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="5.0"/>
+              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="1.0"/>
             </constraints>
             <properties>
               <text value="Host a chat server"/>
@@ -81,8 +81,8 @@
         <children>
           <component id="be123" class="javax.swing.JLabel" binding="joinAServerLabel">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-              <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="5.0"/>
+              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="1.0"/>
             </constraints>
             <properties>
               <text value="Join a server"/>
@@ -108,7 +108,7 @@
           </component>
           <component id="daa72" class="javax.swing.JLabel" binding="joinPasswordLabel">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
               <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="1.0"/>
             </constraints>
             <properties>
@@ -135,24 +135,6 @@
           </component>
           <component id="c2740" class="javax.swing.JPasswordField" binding="joinPasswordField">
             <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-              <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="1.0"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="b763e" class="javax.swing.JLabel" binding="joinUsernameLabel">
-            <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="1.0"/>
-            </constraints>
-            <properties>
-              <text value="Username:"/>
-            </properties>
-          </component>
-          <component id="3faaa" class="javax.swing.JTextField" binding="joinUsernameField">
-            <constraints>
               <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
@@ -162,12 +144,30 @@
           </component>
           <component id="2b911" class="javax.swing.JButton" binding="joinServerButton">
             <constraints>
-              <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
               <gridbag top="3" left="10" bottom="10" right="10" weightx="1.0" weighty="5.0"/>
             </constraints>
             <properties>
               <text value="Join Server"/>
             </properties>
+          </component>
+          <component id="b763e" class="javax.swing.JLabel" binding="joinUsernameLabel">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <text value="Username:"/>
+            </properties>
+          </component>
+          <component id="3faaa" class="javax.swing.JTextField" binding="joinUsernameField">
+            <constraints>
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+              <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="1.0"/>
+            </constraints>
+            <properties/>
           </component>
         </children>
       </grid>
@@ -178,6 +178,26 @@
         </constraints>
         <properties>
           <text value="Save preferences"/>
+        </properties>
+      </component>
+      <component id="e40e5" class="javax.swing.JComboBox" binding="profilesComboBox">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <gridbag top="3" left="10" bottom="10" right="3" weightx="1.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <model>
+            <item value="Main profile"/>
+            <item value="Profile 1"/>
+            <item value="Profile 2"/>
+            <item value="Profile 3"/>
+            <item value="Profile 4"/>
+            <item value="Profile 5"/>
+            <item value="Profile 6"/>
+            <item value="Profile 7"/>
+            <item value="Profile 8"/>
+            <item value="Profile 9"/>
+          </model>
         </properties>
       </component>
     </children>

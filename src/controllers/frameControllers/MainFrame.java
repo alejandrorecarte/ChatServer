@@ -1,28 +1,25 @@
-package controllers;
+package controllers.frameControllers;
 
+import controllers.Streams;
 import controllers.handlers.HandlerHostServer;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.SocketException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.KeySpec;
 import java.util.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-public class mainFrame {
+import static controllers.Encoding.*;
+
+public class MainFrame {
     private JPanel hostPanel;
     private JPanel joinPanel;
     private JLabel hostAChatServerLabel;
@@ -44,6 +41,7 @@ public class mainFrame {
     private JLabel joinPasswordLabel;
     private JPanel mainPanel;
     private JButton savePreferencesButton;
+    private JComboBox profilesComboBox;
     public static LinkedList<String> serverMessages = new LinkedList<String>();
     public static LinkedList<String> clientMessages = new LinkedList<String>();
     private static final Set<PrintWriter> writers = new HashSet<>();
@@ -56,41 +54,44 @@ public class mainFrame {
     private BufferedReader clientReader;
     private PrintWriter clientWriter;
     private BufferedReader consoleReader;
-    private ArrayList<String> preferences;
+    private ArrayList<String>[] profiles;
     public static String clientHashedPassword;
     public static String hostHashedPassword;
 
 
-    public mainFrame() {
+    public MainFrame() {
+        profiles = new ArrayList[10];
         try {
-            preferences = Streams.importarPreferences();
-            hostPortField.setText(preferences.get(0));
-            hostPasswordField.setText(preferences.get(1));
-            joinIPField.setText(preferences.get(2));
-            joinPortField.setText(preferences.get(3));
-            joinPasswordField.setText(preferences.get(4));
-            joinUsernameField.setText(preferences.get(5));
+            profiles = Streams.importarPreferences();
+            hostPortField.setText(profiles[profilesComboBox.getSelectedIndex()].get(0));
+            hostPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(1));
+            joinIPField.setText(profiles[profilesComboBox.getSelectedIndex()].get(2));
+            joinPortField.setText(profiles[profilesComboBox.getSelectedIndex()].get(3));
+            joinPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(4));
+            joinUsernameField.setText(profiles[profilesComboBox.getSelectedIndex()].get(5));
         }catch(Exception e){
-            preferences = new ArrayList<String>();
-            preferences.add(hostPortField.getText());
-            preferences.add(hostPasswordField.getText());
-            preferences.add(joinIPField.getText());
-            preferences.add(joinPortField.getText());
-            preferences.add(joinPasswordField.getText());
-            preferences.add(joinUsernameField.getText());
+            for(int i = 0; i < profiles.length; i++){
+                profiles[i] = new ArrayList<String>();
+            }
+            profiles[profilesComboBox.getSelectedIndex()].add(hostPortField.getText());
+            profiles[profilesComboBox.getSelectedIndex()].add(hostPasswordField.getText());
+            profiles[profilesComboBox.getSelectedIndex()].add(joinIPField.getText());
+            profiles[profilesComboBox.getSelectedIndex()].add(joinPortField.getText());
+            profiles[profilesComboBox.getSelectedIndex()].add(joinPasswordField.getText());
+            profiles[profilesComboBox.getSelectedIndex()].add(joinUsernameField.getText());
             e.printStackTrace();
         }
         createServerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if( !String.valueOf(hostPortField.getText()).equals("") && !String.valueOf(hostPasswordField.getText()).equals("")) {
+                    hostHashedPassword = hashPassword(hostPasswordField.getText());
                     hostServerFrame = new JFrame("Chat Server");
-                    hostServerFrame.setContentPane(new hostServerFrame().mainPanel);
+                    hostServerFrame.setContentPane(new HostServerFrame().mainPanel);
                     hostServerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     hostServerFrame.pack();
                     hostServerFrame.setVisible(true);
                     hostServerFrame.setBounds(0, 0, 600, 400);
-                    hostHashedPassword = hashPassword(hostPasswordField.getText());
                     serverMessages = new LinkedList<String>();
                     startServer();
                 }
@@ -102,16 +103,16 @@ public class mainFrame {
             public void actionPerformed(ActionEvent e) {
                 if(!String.valueOf(joinIPField.getText()).equals("") && !String.valueOf(joinPortField.getText()).equals("") && !String.valueOf(joinPasswordField.getText()).equals("")  && !String.valueOf(joinUsernameField.getText()).equals("")) {
                     try {
+                        clientHashedPassword = hashPassword(joinPasswordField.getText());
                         clientSocket = new Socket(joinIPField.getText(), Integer.parseInt(joinPortField.getText()));
                         clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         consoleReader = new BufferedReader(new InputStreamReader(System.in));
                         clientServerFrame = new JFrame("Chat Client");
-                        clientServerFrame.setContentPane(new joinServerFrame(joinUsernameField.getText(), clientWriter).mainPanel);
+                        clientServerFrame.setContentPane(new JoinServerFrame(joinUsernameField.getText(), clientWriter).mainPanel);
                         clientServerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                         clientServerFrame.pack();
                         clientServerFrame.setBounds(0, 0, 600, 400);
-                        clientHashedPassword = hashPassword(joinPasswordField.getText());
                         clientMessages = new LinkedList<String>();
                         joinServer();
                     } catch (Exception ex){
@@ -125,15 +126,57 @@ public class mainFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    preferences.set(0, hostPortField.getText());
-                    preferences.set(1, hostPasswordField.getText());
-                    preferences.set(2, joinIPField.getText());
-                    preferences.set(3, joinPortField.getText());
-                    preferences.set(4, joinPasswordField.getText());
-                    preferences.set(5, joinUsernameField.getText());
-                    Streams.exportarPreferences(preferences);
+                    profiles[profilesComboBox.getSelectedIndex()].set(0, hostPortField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(1, hostPasswordField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(2, joinIPField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(3, joinPortField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(4, joinPasswordField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(5, joinUsernameField.getText());
+                    Streams.exportarPreferences(profiles);
                 }catch (Exception ex){
                     ex.printStackTrace();
+                }
+            }
+        });
+
+        profilesComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    hostPortField.setText(profiles[profilesComboBox.getSelectedIndex()].get(0));
+                    hostPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(1));
+                    joinIPField.setText(profiles[profilesComboBox.getSelectedIndex()].get(2));
+                    joinPortField.setText(profiles[profilesComboBox.getSelectedIndex()].get(3));
+                    joinPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(4));
+                    joinUsernameField.setText(profiles[profilesComboBox.getSelectedIndex()].get(5));
+                } catch (IndexOutOfBoundsException ex) {
+                    hostPortField.setText("");
+                    hostPasswordField.setText("");
+                    joinIPField.setText("");
+                    joinPortField.setText("");
+                    joinPasswordField.setText("");
+                    joinUsernameField.setText("");
+                }
+            }
+        });
+
+        hostPasswordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    createServerButton.doClick();
+                }
+            }
+        });
+
+
+        joinPasswordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    joinServerButton.doClick();
                 }
             }
         });
@@ -141,7 +184,7 @@ public class mainFrame {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Chat Server");
-        frame.setContentPane(new mainFrame().mainPanel);
+        frame.setContentPane(new MainFrame().mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
@@ -160,7 +203,7 @@ public class mainFrame {
                     }
                 } catch (SocketException e) {
                     if(e.getMessage().equals("Interrupted function call: accept failed")){
-                        serverMessages.add("Server closed");
+                        serverMessages.add("-- Server closed");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -221,77 +264,6 @@ public class mainFrame {
             }
         };
         worker.execute();
-    }
-
-    public static String hashPassword(String password) {
-        try {
-            // Obtener una instancia de MessageDigest con el algoritmo SHA-256
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-
-            // Convertir la contraseña a bytes y aplicar el hash
-            byte[] hashedBytes = md.digest(password.getBytes());
-
-            // Convertir los bytes hasheados a una representación hexadecimal manualmente
-            StringBuilder stringBuilder = new StringBuilder();
-            for (byte b : hashedBytes) {
-                stringBuilder.append(String.format("%02X", b));
-            }
-
-            return stringBuilder.toString();
-        } catch (NoSuchAlgorithmException e) {
-            // Manejar la excepción si el algoritmo no está disponible
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static String encrypt(String plainText, String password) {
-        try {
-            // Generar una clave secreta basada en la contraseña usando PBKDF2
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            KeySpec spec = new PBEKeySpec(password.toCharArray(), "salt".getBytes(), 65536, 256);
-            SecretKey tmp = factory.generateSecret(spec);
-            SecretKey secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
-
-            // Inicializar el cifrado
-            Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-
-            // Cifrar el texto
-            byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
-
-            // Convertir los bytes cifrados a una representación base64
-            return Base64.getEncoder().encodeToString(encryptedBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static String decrypt(String cipherText, String password) {
-        try {
-            // Generar una clave secreta basada en la contraseña usando PBKDF2
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            KeySpec spec = new PBEKeySpec(password.toCharArray(), "salt".getBytes(), 65536, 256);
-            SecretKey tmp = factory.generateSecret(spec);
-            SecretKey secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
-
-            // Inicializar el cifrado para descifrar
-            Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
-
-            // Decodificar la representación base64 del texto cifrado
-            byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
-
-            // Descifrar los bytes
-            byte[] decryptedBytes = cipher.doFinal(cipherBytes);
-
-            // Convertir los bytes descifrados a una cadena
-            return new String(decryptedBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 }
 
