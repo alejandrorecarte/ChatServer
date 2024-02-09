@@ -16,7 +16,7 @@
           <text value="Chat Server"/>
         </properties>
       </component>
-      <scrollpane id="bff6e">
+      <scrollpane id="bff6e" binding="chatOutputScrollPane">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag top="3" left="10" bottom="3" right="10" weightx="1.0" weighty="5.0"/>
@@ -35,16 +35,16 @@
       <component id="df4af" class="javax.swing.JButton" binding="sendButton" default-binding="true">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag top="3" left="3" bottom="10" right="10" weightx="1.0" weighty="0.1"/>
+          <gridbag top="3" left="3" bottom="3" right="10" weightx="1.0" weighty="0.1"/>
         </constraints>
         <properties>
           <text value="Send"/>
         </properties>
       </component>
-      <scrollpane id="d99b6">
+      <scrollpane id="d99b6" binding="chatInputScrollPane">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-          <gridbag top="3" left="10" bottom="10" right="3" weightx="8.0" weighty="0.1"/>
+          <gridbag top="3" left="10" bottom="3" right="3" weightx="8.0" weighty="0.1"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -55,6 +55,21 @@
           </component>
         </children>
       </scrollpane>
+      <component id="254cf" class="views.ImageChooserComponent" binding="imageChooserComponent" custom-create="true">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag top="3" left="10" bottom="10" right="3" weightx="1.0" weighty="0.0"/>
+        </constraints>
+      </component>
+      <component id="8e799" class="javax.swing.JButton" binding="sendImageButton" default-binding="true">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <gridbag top="3" left="3" bottom="10" right="10" weightx="1.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <text value="Send Image"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

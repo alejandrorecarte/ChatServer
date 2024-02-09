@@ -11,14 +11,27 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import static controllers.Encoding.encrypt;
+import static controllers.frameControllers.MainFrame.WIDTH;
+import static controllers.frameControllers.MainFrame.mainFrame;
 
 public class HostServerFrame {
+    public static JFrame hostFrame;
     private JLabel chatServerLabel;
     private JTextArea chatOutputTextArea;
     public JPanel mainPanel;
     private JButton stopButton;
+    private JScrollPane chatOutputScrollPane;
     public static LinkedList<String> messages = new LinkedList<String>();;
     private static final Set<PrintWriter> writers = new HashSet<>();
+
+    public static void startUI(){
+        hostFrame = new JFrame("Wide Room Server");
+        hostFrame.setContentPane(new HostServerFrame().mainPanel);
+        hostFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        hostFrame.pack();
+        hostFrame.setVisible(true);
+        hostFrame.setBounds(mainFrame.getX() + WIDTH, mainFrame.getY(), 600, 400);
+    }
 
     public HostServerFrame() {
         actualizar();
@@ -32,7 +45,7 @@ public class HostServerFrame {
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
-                MainFrame.hostServerFrame.dispose();
+                hostFrame.dispose();
             }
         });
     }
@@ -64,12 +77,22 @@ public class HostServerFrame {
     public synchronized void actualizarChat(){
         if (HostServerFrame.messages.size() < (MainFrame.serverMessages.size())) {
             try {
+                JScrollBar verticalScrollBar = chatOutputScrollPane.getVerticalScrollBar();
+                boolean keepBottom = false;
+                double oldValue = verticalScrollBar.getSize().getHeight() + verticalScrollBar.getValue();
+                if(oldValue >= verticalScrollBar.getMaximum() - 7){
+                    keepBottom = true;
+                }
                 HostServerFrame.messages.add(MainFrame.serverMessages.getLast());
                 chatOutputTextArea.append(HostServerFrame.messages.getLast() + "\n");
                 System.out.println(HostServerFrame.messages.get(HostServerFrame.messages.size() - 1));
                 chatOutputTextArea.repaint();
                 chatOutputTextArea.revalidate();
-                Thread.sleep(200);
+                Thread.sleep(10);
+
+                if(keepBottom){
+                    verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();

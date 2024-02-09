@@ -1,14 +1,17 @@
 package controllers.handlers;
 
 import controllers.frameControllers.MainFrame;
+import org.w3c.dom.ls.LSOutput;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static controllers.Encoding.*;
 
@@ -18,8 +21,10 @@ public class HandlerHostServer extends Thread {
     private PrintWriter writer;
     private static Set<PrintWriter> writers;
     private static ArrayList<String> connectedUsers;
+    private static ArrayList<String> connectedIPs;
 
-    public HandlerHostServer(Socket socket, Set<PrintWriter> writers) {
+    public HandlerHostServer(Socket socket ,Set<PrintWriter> writers) {
+        connectedIPs = new ArrayList<String>();
         connectedUsers = new ArrayList<String>();
         this.socket = socket;
         this.writers = writers;
@@ -34,6 +39,7 @@ public class HandlerHostServer extends Thread {
             writers.add(writer);
 
             while (true) {
+
                 String message = reader.readLine();
                 if (message == null) {
                     return;
@@ -65,12 +71,36 @@ public class HandlerHostServer extends Thread {
                             String ipSplitted[] = ip.split("");
                             if ((ipSplitted[ipSplitted.length - 1] + ipSplitted[ipSplitted.length - 2]).equals("--")) {
                                 connectedUsers.add(message.split(" ")[1]);
+                                connectedIPs.add("127.0.0.1");
+                                System.out.println("Added");
                             }
                         }if (message.split(" ")[2].equals("left")) {
                             String ip = message.split(" ")[0];
                             String ipSplitted[] = ip.split("");
                             if ((ipSplitted[ipSplitted.length - 1] + ipSplitted[ipSplitted.length - 2]).equals("--")) {
                                 connectedUsers.remove(message.split(" ")[1]);
+                                int slashIndex = message.indexOf('/');
+
+                                if (slashIndex != -1) {
+                                    // Encuentra la posición del primer ')'
+                                    int closingParenthesisIndex = message.indexOf(')', slashIndex);
+
+                                    if (closingParenthesisIndex != -1) {
+                                        // Extrae la subcadena entre '/' y ')'
+                                        String ipAddress = message.substring(slashIndex + 1, closingParenthesisIndex);
+                                        System.out.println("Dirección IP encontrada: " + ipAddress);
+                                        connectedIPs.remove(ipAddress);
+                                    }
+                                }
+                            }
+                        }if (message.split(" ")[2].equals("sent")) {
+                            try {
+                                ServerSocket imageSocketServer = new ServerSocket(2020);
+                                Socket imageSocket = imageSocketServer.accept();
+                                Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, message.split(" ")[1]));
+                                handlerThread.start();
+                            }catch(IOException e){
+                                e.printStackTrace();
                             }
                         }
                     }catch (ArrayIndexOutOfBoundsException e){}
@@ -105,6 +135,53 @@ public class HandlerHostServer extends Thread {
     public static void broadcastServerMessage(String message){
         for (PrintWriter writer : writers) {
             writer.println(encrypt(message, MainFrame.hostHashedPassword));
+        }
+    }
+
+    static class ImageConnectionHandler implements Runnable {
+        private Socket socket;
+        private String sender;
+
+        public ImageConnectionHandler(Socket socket, String sender) {
+            this.socket = socket;
+            this.sender = sender;
+        }
+
+        @Override
+        public void run() {
+            try {
+                InputStream inputStream = socket.getInputStream();
+                String fileName = "src/files/server/image"+ sender +Date.from(Instant.now()).getDate()+Date.from(Instant.now()).getMonth()
+                        +Date.from(Instant.now()).getYear()+"_"+Date.from(Instant.now()).getHours()+Date.from(Instant.now()).getMinutes()+Date.from(Instant.now()).getSeconds()+".jpg";
+                FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+
+                byte[] receiveBuffer = new byte[1024];
+                int receiveBytesRead;
+
+                while ((receiveBytesRead = inputStream.read(receiveBuffer)) != -1) {
+                    fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
+                }
+                for(int i = 0; i < connectedIPs.size(); i++) {
+                    try (Socket imageSocket = new Socket(connectedIPs.get(i), 2020);
+                         OutputStream outputStream = imageSocket.getOutputStream();
+                         FileInputStream fileInputStream = new FileInputStream(fileName)) {
+                        Thread.sleep(100);
+
+                        byte[] sendBuffer = new byte[1024];
+                        int sendBytesRead;
+
+                        while ((sendBytesRead = fileInputStream.read(sendBuffer)) != -1) {
+                            outputStream.write(sendBuffer, 0, sendBytesRead);
+                        }
+                        System.out.println("Enviado");
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
         }
     }
 }

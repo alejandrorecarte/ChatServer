@@ -20,6 +20,11 @@ import java.net.Socket;
 import static controllers.Encoding.*;
 
 public class MainFrame {
+
+    public static final int WIDTH = 600;
+    public static final int HEIGHT = 400;
+
+    public static JFrame mainFrame;
     private JPanel hostPanel;
     private JPanel joinPanel;
     private JLabel hostAChatServerLabel;
@@ -32,7 +37,7 @@ public class MainFrame {
     private JLabel hostIPLabel;
     private JPasswordField hostPasswordField;
     private JLabel hostPortLabel;
-    private JTextField joinIPField;
+    public JTextField joinIPField;
     private JTextField joinPortField;
     private JPasswordField joinPasswordField;
     private JLabel joinUsernameLabel;
@@ -46,11 +51,8 @@ public class MainFrame {
     public static LinkedList<String> clientMessages = new LinkedList<String>();
     private static final Set<PrintWriter> writers = new HashSet<>();
     public static ServerSocket serverSocket;
-    public static JFrame hostServerFrame;
 
-    public static JFrame clientServerFrame;
-
-    private Socket clientSocket;
+    public static Socket clientSocket;
     private BufferedReader clientReader;
     private PrintWriter clientWriter;
     private BufferedReader consoleReader;
@@ -86,12 +88,7 @@ public class MainFrame {
             public void actionPerformed(ActionEvent e) {
                 if( !String.valueOf(hostPortField.getText()).equals("") && !String.valueOf(hostPasswordField.getText()).equals("")) {
                     hostHashedPassword = hashPassword(hostPasswordField.getText());
-                    hostServerFrame = new JFrame("Chat Server");
-                    hostServerFrame.setContentPane(new HostServerFrame().mainPanel);
-                    hostServerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    hostServerFrame.pack();
-                    hostServerFrame.setVisible(true);
-                    hostServerFrame.setBounds(0, 0, 600, 400);
+                    controllers.frameControllers.HostServerFrame.startUI();
                     serverMessages = new LinkedList<String>();
                     startServer();
                 }
@@ -108,11 +105,7 @@ public class MainFrame {
                         clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         consoleReader = new BufferedReader(new InputStreamReader(System.in));
-                        clientServerFrame = new JFrame("Chat Client");
-                        clientServerFrame.setContentPane(new JoinServerFrame(joinUsernameField.getText(), clientWriter).mainPanel);
-                        clientServerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        clientServerFrame.pack();
-                        clientServerFrame.setBounds(0, 0, 600, 400);
+                        controllers.frameControllers.JoinServerFrame.startUI(joinUsernameField.getText(), clientWriter);
                         clientMessages = new LinkedList<String>();
                         joinServer();
                     } catch (Exception ex){
@@ -182,13 +175,13 @@ public class MainFrame {
         });
     }
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Chat Server");
-        frame.setContentPane(new MainFrame().mainPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-        frame.setBounds(0,0,600,400);
+    public static void startUI() {
+        mainFrame = new JFrame("Chat Server");
+        mainFrame.setContentPane(new MainFrame().mainPanel);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.pack();
+        mainFrame.setVisible(true);
+        mainFrame.setBounds(0,0,WIDTH,HEIGHT);
     }
 
     private void startServer() {
