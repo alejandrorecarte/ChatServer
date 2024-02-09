@@ -1,1 +1,1 @@
-Actually to try the program, go src > controllers > frameControllers > mainFrame and execute the main thread.
+Java program to create a chat room where all messages are cyphred using a hashed password.
