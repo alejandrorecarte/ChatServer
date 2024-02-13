@@ -162,6 +162,9 @@ public class HandlerHostServer extends Thread {
                 while ((receiveBytesRead = inputStream.read(receiveBuffer)) != -1) {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
+
+                Thread.sleep(500);
+
                 for(int i = 0; i < connectedIPs.size(); i++) {
                     try (Socket imageSocket = new Socket(connectedIPs.get(i), 2021);
                          OutputStream outputStream = imageSocket.getOutputStream();

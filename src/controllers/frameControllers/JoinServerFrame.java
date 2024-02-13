@@ -1,5 +1,6 @@
 package controllers.frameControllers;
 
+import org.w3c.dom.ls.LSOutput;
 import views.ImageChooserComponent;
 
 import javax.swing.*;
@@ -160,6 +161,7 @@ public class JoinServerFrame {
 
                 try {
                     if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
+                        System.out.println("Creando Imagen Socket");
                         ServerSocket imageSocketServer = new ServerSocket(2021);
                         Socket imageSocket = imageSocketServer.accept();
                         Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
@@ -233,6 +235,7 @@ public class JoinServerFrame {
 
         @Override
         public void run() {
+            System.out.println("Cargando imagen");
             try {
                 InputStream inputStream = socket.getInputStream();
                 Calendar calendar = Calendar.getInstance();
@@ -249,6 +252,7 @@ public class JoinServerFrame {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            System.out.println("Imagen descargada");
         }
     }
 }

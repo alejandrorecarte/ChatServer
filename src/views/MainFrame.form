@@ -174,7 +174,7 @@
       <component id="3697b" class="javax.swing.JButton" binding="savePreferencesButton" default-binding="true">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag top="3" left="3" bottom="10" right="10" weightx="0.5" weighty="0.0"/>
+          <gridbag top="3" left="3" bottom="3" right="10" weightx="0.5" weighty="0.0"/>
         </constraints>
         <properties>
           <text value="Save preferences"/>
@@ -183,7 +183,7 @@
       <component id="e40e5" class="javax.swing.JComboBox" binding="profilesComboBox">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag top="3" left="10" bottom="10" right="3" weightx="1.0" weighty="0.0"/>
+          <gridbag top="3" left="10" bottom="6" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
           <model>
@@ -208,6 +208,15 @@
         <properties>
           <font size="16"/>
           <text value="WideRoom"/>
+        </properties>
+      </component>
+      <component id="535bb" class="javax.swing.JButton" binding="settingsButton" default-binding="true">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <gridbag top="3" left="3" bottom="10" right="10" weightx="1.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <text value="Settings"/>
         </properties>
       </component>
     </children>

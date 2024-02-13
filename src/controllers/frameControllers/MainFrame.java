@@ -48,6 +48,7 @@ public class MainFrame {
     private JButton savePreferencesButton;
     private JComboBox profilesComboBox;
     private JLabel wideRoomLabel;
+    private JButton settingsButton;
     public static LinkedList<String> serverMessages = new LinkedList<String>();
     public static LinkedList<String> clientMessages = new LinkedList<String>();
     private static final Set<PrintWriter> writers = new HashSet<>();
@@ -106,7 +107,7 @@ public class MainFrame {
                         clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         consoleReader = new BufferedReader(new InputStreamReader(System.in));
-                        controllers.frameControllers.JoinServerFrame.startUI(joinUsernameField.getText(), clientWriter);
+                        controllers.frameControllers.JoinServerFrame.startUI(joinUsernameField.getText().replace(" ", ""), clientWriter);
                         clientMessages = new LinkedList<String>();
                         joinIP = joinIPField.getText();
                         joinServer();
@@ -114,6 +115,13 @@ public class MainFrame {
                         ex.printStackTrace();
                     }
                 }
+            }
+        });
+
+        settingsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controllers.frameControllers.SettingsFrame.startUI();
             }
         });
 
