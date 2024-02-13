@@ -47,6 +47,7 @@ public class MainFrame {
     private JPanel mainPanel;
     private JButton savePreferencesButton;
     private JComboBox profilesComboBox;
+    private JLabel wideRoomLabel;
     public static LinkedList<String> serverMessages = new LinkedList<String>();
     public static LinkedList<String> clientMessages = new LinkedList<String>();
     private static final Set<PrintWriter> writers = new HashSet<>();

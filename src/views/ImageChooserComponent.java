@@ -11,11 +11,12 @@ public class ImageChooserComponent extends JPanel {
 
     private ImageIcon icon;
     private String path;
+    private JButton chooseButton;
 
     public ImageChooserComponent() {
         setLayout(new BorderLayout());
 
-        JButton chooseButton = new JButton("Seleccionar imagen");
+        chooseButton = new JButton("Seleccionar imagen");
         chooseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -38,18 +39,11 @@ public class ImageChooserComponent extends JPanel {
                     icon = new ImageIcon(selectedFile.getAbsolutePath());
 
                     path = fileChooser.getSelectedFile().getAbsolutePath();
+                    chooseButton.setText("Imagen seleccionada");
                 }
             }
         });
         add(chooseButton, BorderLayout.NORTH);
-    }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Image Chooser Component");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new ImageChooserComponent());
-        frame.setSize(400, 300);
-        frame.setVisible(true);
     }
 
     public ImageIcon getIcon() {
@@ -66,5 +60,8 @@ public class ImageChooserComponent extends JPanel {
 
     public void setPath(String path) {
         this.path = path;
+    }
+    public void setText(String text){
+        chooseButton.setText(text);
     }
 }

@@ -10,13 +10,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import static controllers.Encoding.encrypt;
 import static controllers.frameControllers.MainFrame.WIDTH;
 import static controllers.frameControllers.MainFrame.mainFrame;
 
 public class HostServerFrame {
     public static JFrame hostFrame;
-    private JLabel chatServerLabel;
+    private JLabel wideRoomServerLabel;
     private JTextArea chatOutputTextArea;
     public JPanel mainPanel;
     private JButton stopButton;

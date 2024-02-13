@@ -7,13 +7,14 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="ed59e" class="javax.swing.JLabel" binding="chatServerLabel">
+      <component id="ed59e" class="javax.swing.JLabel" binding="wideRoomClientLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
           <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="1.0"/>
         </constraints>
         <properties>
-          <text value="Chat Server"/>
+          <font size="16"/>
+          <text value="WideRoom Client"/>
         </properties>
       </component>
       <scrollpane id="bff6e" binding="chatOutputScrollPane">
@@ -57,18 +58,10 @@
       </scrollpane>
       <component id="254cf" class="views.ImageChooserComponent" binding="imageChooserComponent" custom-create="true">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-          <gridbag top="3" left="10" bottom="10" right="3" weightx="1.0" weighty="0.0"/>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag top="3" left="10" bottom="10" right="3" weightx="1.0" weighty="0.1"/>
         </constraints>
-      </component>
-      <component id="8e799" class="javax.swing.JButton" binding="sendImageButton" default-binding="true">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag top="3" left="3" bottom="10" right="10" weightx="1.0" weighty="0.0"/>
-        </constraints>
-        <properties>
-          <text value="Send Image"/>
-        </properties>
+        <properties/>
       </component>
     </children>
   </grid>

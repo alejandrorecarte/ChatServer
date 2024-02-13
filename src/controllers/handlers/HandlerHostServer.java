@@ -162,7 +162,7 @@ public class HandlerHostServer extends Thread {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
                 for(int i = 0; i < connectedIPs.size(); i++) {
-                    try (Socket imageSocket = new Socket(connectedIPs.get(i), 2020);
+                    try (Socket imageSocket = new Socket(connectedIPs.get(i), 2021);
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(fileName)) {
                         Thread.sleep(100);
@@ -173,7 +173,6 @@ public class HandlerHostServer extends Thread {
                         while ((sendBytesRead = fileInputStream.read(sendBuffer)) != -1) {
                             outputStream.write(sendBuffer, 0, sendBytesRead);
                         }
-                        System.out.println("Enviado");
 
                     } catch (Exception ex) {
                         ex.printStackTrace();

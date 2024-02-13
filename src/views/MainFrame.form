@@ -9,7 +9,7 @@
     <children>
       <grid id="acf3" binding="hostPanel" layout-manager="GridBagLayout">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag weightx="1.0" weighty="1.0"/>
         </constraints>
         <properties/>
@@ -73,7 +73,7 @@
       </grid>
       <grid id="ef066" binding="joinPanel" layout-manager="GridBagLayout">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag weightx="1.0" weighty="1.0"/>
         </constraints>
         <properties/>
@@ -173,7 +173,7 @@
       </grid>
       <component id="3697b" class="javax.swing.JButton" binding="savePreferencesButton" default-binding="true">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag top="3" left="3" bottom="10" right="10" weightx="0.5" weighty="0.0"/>
         </constraints>
         <properties>
@@ -182,7 +182,7 @@
       </component>
       <component id="e40e5" class="javax.swing.JComboBox" binding="profilesComboBox">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag top="3" left="10" bottom="10" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
@@ -198,6 +198,16 @@
             <item value="Profile 8"/>
             <item value="Profile 9"/>
           </model>
+        </properties>
+      </component>
+      <component id="87269" class="javax.swing.JLabel" binding="wideRoomLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="0.1"/>
+        </constraints>
+        <properties>
+          <font size="16"/>
+          <text value="WideRoom"/>
         </properties>
       </component>
     </children>

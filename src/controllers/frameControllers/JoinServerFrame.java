@@ -1,7 +1,5 @@
 package controllers.frameControllers;
 
-import controllers.handlers.HandlerHostServer;
-import org.w3c.dom.ls.LSOutput;
 import views.ImageChooserComponent;
 
 import javax.swing.*;
@@ -9,6 +7,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedList;
@@ -22,14 +21,13 @@ import static controllers.frameControllers.MainFrame.mainFrame;
 public class JoinServerFrame {
     public static JFrame clientFrame;
     public JPanel mainPanel;
-    private JLabel chatServerLabel;
+    private JLabel wideRoomClientLabel;
     private JButton sendButton;
     private JTextArea chatOutputTextArea;
     private JTextField chatInputField;
     private JScrollPane chatOutputScrollPane;
     private JScrollPane chatInputScrollPane;
     private ImageChooserComponent imageChooserComponent;
-    private JButton sendImageButton;
     public String username;
     private static LinkedList<String> messages;
     private boolean access;
@@ -56,6 +54,28 @@ public class JoinServerFrame {
             @Override
             public void actionPerformed(ActionEvent e){
                 sendMessage(writer);
+                if(imageChooserComponent.getPath()!=null){
+                    writer.println(encrypt("-- " + username + " sent an image.", MainFrame.clientHashedPassword));
+                    MainFrame.clientMessages.add(encrypt("-- " + username + " sent an image.", MainFrame.clientHashedPassword));
+                    try (Socket imageSocket = new Socket("localhost", 2020);
+                         OutputStream outputStream = imageSocket.getOutputStream();
+                         FileInputStream fileInputStream = new FileInputStream(imageChooserComponent.getPath())) {
+
+                        Thread.sleep(100);
+
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+
+                        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    imageChooserComponent.setPath(null);
+                    imageChooserComponent.setText("Seleccionar imagen");
+                }
             }
         });
 
@@ -81,30 +101,6 @@ public class JoinServerFrame {
                 }
             }
         });
-
-       sendImageButton.addActionListener(new ActionListener() {
-           @Override
-           public void actionPerformed(ActionEvent e) {
-               writer.println(encrypt("-- " + username + " sent an image.", MainFrame.clientHashedPassword));
-               MainFrame.clientMessages.add(encrypt("-- " + username + " sent an image.", MainFrame.clientHashedPassword));
-               try (Socket imageSocket = new Socket("localhost", 2020);
-                    OutputStream outputStream = imageSocket.getOutputStream();
-                    FileInputStream fileInputStream = new FileInputStream(imageChooserComponent.getPath())) {
-
-                   Thread.sleep(100);
-
-                   byte[] buffer = new byte[1024];
-                   int bytesRead;
-
-                   while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                       outputStream.write(buffer, 0, bytesRead);
-                   }
-
-               } catch (Exception ex) {
-                   ex.printStackTrace();
-               }
-           }
-       });
     }
 
     private void sendMessage(PrintWriter writer){
@@ -162,14 +158,14 @@ public class JoinServerFrame {
                 chatOutputTextArea.revalidate();
 
                 try {
-                    System.out.println(MainFrame.clientMessages.getLast().split(" ")[2]);
-                    if (MainFrame.clientMessages.getLast().split(" ")[2].equals("sent")) {
-                        System.out.println("Llego");
-                        ServerSocket imageSocketServer = new ServerSocket(2020);
+                    if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
+                        ServerSocket imageSocketServer = new ServerSocket(2021);
                         Socket imageSocket = imageSocketServer.accept();
-                        Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, MainFrame.clientMessages.getLast().split(" ")[1]));
+                        Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
                         handlerThread.start();
                     }
+                }catch (SocketException e) {
+                    e.printStackTrace();
                 }catch(Exception e){}
 
                 Thread.sleep(100);
@@ -241,7 +237,6 @@ public class JoinServerFrame {
                 String fileName = "src/files/client/image" + sender + Date.from(Instant.now()).getDate() + Date.from(Instant.now()).getMonth()
                         + Date.from(Instant.now()).getYear() + "_" + Date.from(Instant.now()).getHours() + Date.from(Instant.now()).getMinutes() + Date.from(Instant.now()).getSeconds() + ".jpg";
                 FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-
                 byte[] receiveBuffer = new byte[1024];
                 int receiveBytesRead;
 
