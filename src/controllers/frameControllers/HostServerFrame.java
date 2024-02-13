@@ -50,27 +50,13 @@ public class HostServerFrame {
     }
 
     public void actualizar() {
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+        Timer timer = new Timer(100, new ActionListener() {
             @Override
-            protected Void doInBackground() throws Exception {
-                try {
-                    while (true) {
-                        new Handler().start();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
+            public void actionPerformed(ActionEvent e) {
+                new Handler().start();
             }
-
-            @Override
-            protected void done() {
-                // Puedes realizar acciones después de que el servidor haya terminado
-                // Esto se ejecutará en el hilo de despacho de eventos de Swing
-            }
-        };
-
-        worker.execute();
+        });
+        timer.start();
     }
 
     public synchronized void actualizarChat(){

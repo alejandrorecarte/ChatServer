@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -22,12 +23,10 @@ public class HandlerHostServer extends Thread {
     private BufferedReader reader;
     private PrintWriter writer;
     private static Set<PrintWriter> writers;
-    private static ArrayList<String> connectedUsers;
-    private static ArrayList<String> connectedIPs;
+    private static ArrayList<String> connectedUsers = new ArrayList<String>();
+    private static ArrayList<String> connectedIPs = new ArrayList<String>();
 
     public HandlerHostServer(Socket socket ,Set<PrintWriter> writers) {
-        connectedIPs = new ArrayList<String>();
-        connectedUsers = new ArrayList<String>();
         this.socket = socket;
         this.writers = writers;
     }
@@ -67,14 +66,9 @@ public class HandlerHostServer extends Thread {
                         }
                     }catch(ArrayIndexOutOfBoundsException e){}
                     try {
-
                         if (message.split(" ")[2].equals("joined")) {
-                            String ip = message.split(" ")[0];
-                            String ipSplitted[] = ip.split("");
-                            if ((ipSplitted[ipSplitted.length - 1] + ipSplitted[ipSplitted.length - 2]).equals("--")) {
-                                connectedUsers.add(message.split(" ")[1]);
-                                connectedIPs.add("127.0.0.1");
-                            }
+                            connectedUsers.add(message.split(" ")[1]);
+                            connectedIPs.add(MainFrame.serverMessages.getLast().split("/")[1].split("-")[0].replace(")", ""));
                         }if (message.split(" ")[2].equals("left")) {
                             String ip = message.split(" ")[0];
                             String ipSplitted[] = ip.split("");
@@ -162,9 +156,6 @@ public class HandlerHostServer extends Thread {
                 while ((receiveBytesRead = inputStream.read(receiveBuffer)) != -1) {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
-
-                Thread.sleep(500);
-
                 for(int i = 0; i < connectedIPs.size(); i++) {
                     try (Socket imageSocket = new Socket(connectedIPs.get(i), 2021);
                          OutputStream outputStream = imageSocket.getOutputStream();

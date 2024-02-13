@@ -17,8 +17,7 @@ import java.util.NoSuchElementException;
 
 import static controllers.Encoding.decrypt;
 import static controllers.Encoding.encrypt;
-import static controllers.frameControllers.MainFrame.HEIGHT;
-import static controllers.frameControllers.MainFrame.mainFrame;
+import static controllers.frameControllers.MainFrame.*;
 
 public class JoinServerFrame {
     public static JFrame clientFrame;
@@ -118,33 +117,18 @@ public class JoinServerFrame {
     }
 
     public void actualizar() {
-        worker = new SwingWorker<Void, Void>() {
+        Timer timer = new Timer(100, new ActionListener() {
             @Override
-            protected Void doInBackground() throws Exception {
-                try {
-                    while (true) {;
-                        if (!checkPassword()) {
-                            break;
-                        }
-                        new Handler().start();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            public void actionPerformed(ActionEvent e) {
+                if (checkPassword()) {
+                    new Handler().start();
+                }else{
+                    ((Timer) e.getSource()).stop();
                 }
-                return null;
             }
-
-            @Override
-            protected void done() {
-                // Puedes realizar acciones después de que el servidor haya terminado
-                // Esto se ejecutará en el hilo de despacho de eventos de Swing
-            }
-        };
-
-        worker.execute();
-
+        });
+        timer.start();
     }
-
     public synchronized void actualizarChat(){
         if (JoinServerFrame.messages.size() < (MainFrame.clientMessages.size())) {
             try {
@@ -161,7 +145,6 @@ public class JoinServerFrame {
 
                 try {
                     if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
-                        System.out.println("Creando Imagen Socket");
                         ServerSocket imageSocketServer = new ServerSocket(2021);
                         Socket imageSocket = imageSocketServer.accept();
                         Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
@@ -169,7 +152,9 @@ public class JoinServerFrame {
                     }
                 }catch (SocketException e) {
                     e.printStackTrace();
-                }catch(Exception e){}
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
 
                 Thread.sleep(100);
 
@@ -195,7 +180,7 @@ public class JoinServerFrame {
                     chatOutputTextArea.setText("");
                     messages = new LinkedList<String>();
                     MainFrame.clientMessages = new LinkedList<String>();
-                    MainFrame.clientMessages.add(encrypt("Connected to the server.", MainFrame.clientHashedPassword));
+                    MainFrame.clientMessages.add(encrypt("-- Welcome " + username + " to the server!", MainFrame.clientHashedPassword));
                     sendMessage(encrypt("-- " + username + " joined the server.", MainFrame.clientHashedPassword), writer);
                     clientFrame.setVisible(true);
                 }
@@ -213,12 +198,10 @@ public class JoinServerFrame {
     }
 
     private class Handler extends Thread {
-
         public Handler() {
         }
 
         @Override
-
         public void run() {
             actualizarChat();
         }
@@ -235,7 +218,6 @@ public class JoinServerFrame {
 
         @Override
         public void run() {
-            System.out.println("Cargando imagen");
             try {
                 InputStream inputStream = socket.getInputStream();
                 Calendar calendar = Calendar.getInstance();
@@ -252,7 +234,6 @@ public class JoinServerFrame {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("Imagen descargada");
         }
     }
 }

@@ -200,7 +200,7 @@ public class MainFrame {
     }
 
     public static void startUI() {
-        mainFrame = new JFrame("Chat Server");
+        mainFrame = new JFrame("WideRoom");
         mainFrame.setContentPane(new MainFrame().mainPanel);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.pack();
@@ -214,7 +214,7 @@ public class MainFrame {
             protected Void doInBackground() throws Exception {
                 try {
                     serverSocket = new ServerSocket(Integer.parseInt(hostPortField.getText()));
-                    serverMessages.add("Chat Server is running...");
+                    serverMessages.add("-- Chat Server is running...");
                     while (true) {
                         new HandlerHostServer(serverSocket.accept(), writers).start();
                     }
