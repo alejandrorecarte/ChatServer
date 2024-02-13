@@ -6,6 +6,7 @@ import org.w3c.dom.ls.LSOutput;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static controllers.Encoding.*;
+import static controllers.frameControllers.HostServerFrame.messages;
 
 public class HandlerHostServer extends Thread {
     private final Socket socket;
@@ -72,7 +74,6 @@ public class HandlerHostServer extends Thread {
                             if ((ipSplitted[ipSplitted.length - 1] + ipSplitted[ipSplitted.length - 2]).equals("--")) {
                                 connectedUsers.add(message.split(" ")[1]);
                                 connectedIPs.add("127.0.0.1");
-                                System.out.println("Added");
                             }
                         }if (message.split(" ")[2].equals("left")) {
                             String ip = message.split(" ")[0];
@@ -88,18 +89,18 @@ public class HandlerHostServer extends Thread {
                                     if (closingParenthesisIndex != -1) {
                                         // Extrae la subcadena entre '/' y ')'
                                         String ipAddress = message.substring(slashIndex + 1, closingParenthesisIndex);
-                                        System.out.println("Dirección IP encontrada: " + ipAddress);
                                         connectedIPs.remove(ipAddress);
                                     }
                                 }
                             }
-                        }if (message.split(" ")[2].equals("sent")) {
+                        }
+                        if (message.split(" ")[2].equals("sent")) {
                             try {
                                 ServerSocket imageSocketServer = new ServerSocket(2020);
                                 Socket imageSocket = imageSocketServer.accept();
                                 Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, message.split(" ")[1]));
                                 handlerThread.start();
-                            }catch(IOException e){
+                            }catch(SocketException e){
                                 e.printStackTrace();
                             }
                         }
@@ -173,7 +174,6 @@ public class HandlerHostServer extends Thread {
                         while ((sendBytesRead = fileInputStream.read(sendBuffer)) != -1) {
                             outputStream.write(sendBuffer, 0, sendBytesRead);
                         }
-
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

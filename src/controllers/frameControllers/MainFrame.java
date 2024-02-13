@@ -52,7 +52,6 @@ public class MainFrame {
     public static LinkedList<String> clientMessages = new LinkedList<String>();
     private static final Set<PrintWriter> writers = new HashSet<>();
     public static ServerSocket serverSocket;
-
     public static Socket clientSocket;
     private BufferedReader clientReader;
     private PrintWriter clientWriter;
@@ -60,6 +59,7 @@ public class MainFrame {
     private ArrayList<String>[] profiles;
     public static String clientHashedPassword;
     public static String hostHashedPassword;
+    public static String joinIP;
 
 
     public MainFrame() {
@@ -108,6 +108,7 @@ public class MainFrame {
                         consoleReader = new BufferedReader(new InputStreamReader(System.in));
                         controllers.frameControllers.JoinServerFrame.startUI(joinUsernameField.getText(), clientWriter);
                         clientMessages = new LinkedList<String>();
+                        joinIP = joinIPField.getText();
                         joinServer();
                     } catch (Exception ex){
                         ex.printStackTrace();
@@ -120,6 +121,7 @@ public class MainFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    profiles[profilesComboBox.getSelectedIndex()] = new ArrayList<String>();
                     profiles[profilesComboBox.getSelectedIndex()].set(0, hostPortField.getText());
                     profiles[profilesComboBox.getSelectedIndex()].set(1, hostPasswordField.getText());
                     profiles[profilesComboBox.getSelectedIndex()].set(2, joinIPField.getText());
@@ -127,6 +129,19 @@ public class MainFrame {
                     profiles[profilesComboBox.getSelectedIndex()].set(4, joinPasswordField.getText());
                     profiles[profilesComboBox.getSelectedIndex()].set(5, joinUsernameField.getText());
                     Streams.exportarPreferences(profiles);
+                }catch (IndexOutOfBoundsException ex){
+                    profiles[profilesComboBox.getSelectedIndex()] = new ArrayList<String>();
+                    profiles[profilesComboBox.getSelectedIndex()].add(0, hostPortField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(1, hostPasswordField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(2, joinIPField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(3, joinPortField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(4, joinPasswordField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(5, joinUsernameField.getText());
+                    try {
+                        Streams.exportarPreferences(profiles);
+                    } catch (IOException exc) {
+                        exc.printStackTrace();
+                    }
                 }catch (Exception ex){
                     ex.printStackTrace();
                 }

@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -57,7 +58,7 @@ public class JoinServerFrame {
                 if(imageChooserComponent.getPath()!=null){
                     writer.println(encrypt("-- " + username + " sent an image.", MainFrame.clientHashedPassword));
                     MainFrame.clientMessages.add(encrypt("-- " + username + " sent an image.", MainFrame.clientHashedPassword));
-                    try (Socket imageSocket = new Socket("localhost", 2020);
+                    try (Socket imageSocket = new Socket(MainFrame.joinIP, 2020);
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(imageChooserComponent.getPath())) {
 
@@ -192,7 +193,7 @@ public class JoinServerFrame {
                     chatOutputTextArea.setText("");
                     messages = new LinkedList<String>();
                     MainFrame.clientMessages = new LinkedList<String>();
-                    MainFrame.clientMessages.add(encrypt("Connected to the server. Type 'exit' to quit.", MainFrame.clientHashedPassword));
+                    MainFrame.clientMessages.add(encrypt("Connected to the server.", MainFrame.clientHashedPassword));
                     sendMessage(encrypt("-- " + username + " joined the server.", MainFrame.clientHashedPassword), writer);
                     clientFrame.setVisible(true);
                 }
@@ -234,8 +235,9 @@ public class JoinServerFrame {
         public void run() {
             try {
                 InputStream inputStream = socket.getInputStream();
-                String fileName = "src/files/client/image" + sender + Date.from(Instant.now()).getDate() + Date.from(Instant.now()).getMonth()
-                        + Date.from(Instant.now()).getYear() + "_" + Date.from(Instant.now()).getHours() + Date.from(Instant.now()).getMinutes() + Date.from(Instant.now()).getSeconds() + ".jpg";
+                Calendar calendar = Calendar.getInstance();
+                String fileName = "src/files/client/image" + sender + calendar.get(Calendar.DAY_OF_MONTH) + calendar.get(Calendar.MONTH)
+                        + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.HOUR) + calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + ".jpg";
                 FileOutputStream fileOutputStream = new FileOutputStream(fileName);
                 byte[] receiveBuffer = new byte[1024];
                 int receiveBytesRead;
@@ -243,6 +245,7 @@ public class JoinServerFrame {
                 while ((receiveBytesRead = inputStream.read(receiveBuffer)) != -1) {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
+                MainFrame.clientMessages.add(encrypt("-- Archivo guardado en " + fileName, MainFrame.clientHashedPassword));
             } catch (Exception e) {
                 e.printStackTrace();
             }
