@@ -2,8 +2,11 @@ package controllers.frameControllers;
 
 import org.w3c.dom.ls.LSOutput;
 import views.ImageChooserComponent;
+import views.MessagePanel;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.ServerSocket;
@@ -24,11 +27,11 @@ public class JoinServerFrame {
     public JPanel mainPanel;
     private JLabel wideRoomClientLabel;
     private JButton sendButton;
-    private JTextArea chatOutputTextArea;
     private JTextField chatInputField;
     private JScrollPane chatOutputScrollPane;
     private JScrollPane chatInputScrollPane;
     private ImageChooserComponent imageChooserComponent;
+    private JPanel messagesPanel;
     public String username;
     private static LinkedList<String> messages;
     private boolean access;
@@ -46,6 +49,7 @@ public class JoinServerFrame {
     public JoinServerFrame(String username, PrintWriter writer) {
         this.username = username;
         this.writer = writer;
+        messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.Y_AXIS));
         access = false;
         messages  = new LinkedList<String>();
         actualizar();
@@ -54,10 +58,13 @@ public class JoinServerFrame {
         sendButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e){
-                sendMessage(writer);
+                if(!chatInputField.getText().equals("")) {
+                    sendMessage(writer);
+                    chatInputField.setText("");
+                }
                 if(imageChooserComponent.getPath()!=null){
-                    writer.println(encrypt("-- " + username + " sent an image.", MainFrame.clientHashedPassword));
-                    MainFrame.clientMessages.add(encrypt("-- " + username + " sent an image.", MainFrame.clientHashedPassword));
+                    writer.println(encrypt("Server: " + username + " sent an image.", MainFrame.clientHashedPassword));
+                    MainFrame.clientMessages.add(encrypt("Server: " + username + " sent an image.", MainFrame.clientHashedPassword));
                     try (Socket imageSocket = new Socket(MainFrame.joinIP, 2020);
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(imageChooserComponent.getPath())) {
@@ -75,8 +82,15 @@ public class JoinServerFrame {
                         ex.printStackTrace();
                     }
                     imageChooserComponent.setPath(null);
-                    imageChooserComponent.setText("Seleccionar imagen");
+                    imageChooserComponent.getChooseButton().setText("Seleccionar imagen");
                 }
+            }
+        });
+
+        imageChooserComponent.getChooseButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chatInputField.requestFocus();
             }
         });
 
@@ -85,8 +99,7 @@ public class JoinServerFrame {
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
                 if(e.getKeyCode() == KeyEvent.VK_ENTER){
-                    sendMessage(writer);
-                    chatInputField.setText("");
+                    sendButton.doClick();
                 }
             }
         });
@@ -96,7 +109,7 @@ public class JoinServerFrame {
             public void windowClosing(WindowEvent e) {
                 int confirm = JOptionPane.showConfirmDialog(clientFrame, "Do you want to exit this chat server?", "Exit confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
-                    sendMessage(encrypt("-- " + username + " left the server.", MainFrame.clientHashedPassword), writer);
+                    sendMessage(encrypt("Server: " + username + " left the server.", MainFrame.clientHashedPassword), writer);
                 } else {
                     clientFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
                 }
@@ -106,8 +119,8 @@ public class JoinServerFrame {
 
     private void sendMessage(PrintWriter writer){
         if(!chatInputField.getText().equals("")) {
-            writer.println(encrypt("> " + username + ": " + chatInputField.getText(), MainFrame.clientHashedPassword));
-            MainFrame.clientMessages.add(encrypt("> " + username + ": " + chatInputField.getText(), MainFrame.clientHashedPassword));
+            writer.println(encrypt(username + ": " + chatInputField.getText(), MainFrame.clientHashedPassword));
+            MainFrame.clientMessages.add(encrypt(username + ": " + chatInputField.getText(), MainFrame.clientHashedPassword));
             chatInputField.setText("");
         }
     }
@@ -135,13 +148,34 @@ public class JoinServerFrame {
                 JScrollBar verticalScrollBar = chatOutputScrollPane.getVerticalScrollBar();
                 boolean keepBottom = false;
                 double oldValue = verticalScrollBar.getSize().getHeight() + verticalScrollBar.getValue();
-                if(oldValue >= verticalScrollBar.getMaximum() - 7){
+                if(oldValue >= verticalScrollBar.getMaximum() - 15){
                     keepBottom = true;
                 }
                 JoinServerFrame.messages.add(MainFrame.clientMessages.getLast());
-                chatOutputTextArea.append(decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword) + "\n");
-                chatOutputTextArea.repaint();
-                chatOutputTextArea.revalidate();
+                String message = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword).split(":")[1];
+                String username = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword).split(":")[0];
+
+                try {
+                    MessagePanel messagePanel = new MessagePanel(username, message);
+                    messagePanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+                    messagesPanel.add(messagePanel);
+                    System.out.println(username);
+                    if(!username.equals("Server")){
+                        messagePanel.getMessageLabel().setFont(new Font("arial", Font.PLAIN, 12));
+                        messagePanel.getMessageLabel().setBackground(Color.CYAN);
+                    }if(username.equals("Local")){
+                        ImageIcon image = new ImageIcon(messagePanel.getMessageLabel().getText().split(" ")[4]);
+                        Image imageScaled = image.getImage().getScaledInstance(200,200, Image.SCALE_SMOOTH);
+                        ImageIcon scaledImageIcon = new ImageIcon(imageScaled);
+                        messagePanel.getMessageLabel().setText("");
+                        messagePanel.getMessageLabel().setIcon(scaledImageIcon);
+                        messagePanel.getMessageLabel().repaint();
+                    }
+                }catch (ArrayIndexOutOfBoundsException ex){
+                }
+
+                clientFrame.revalidate();
+                clientFrame.repaint();
 
                 try {
                     if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
@@ -153,13 +187,16 @@ public class JoinServerFrame {
                 }catch (SocketException e) {
                     e.printStackTrace();
                 }catch(Exception e){
-                    e.printStackTrace();
                 }
 
                 Thread.sleep(100);
 
                 if(keepBottom){
-                    verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+                    SwingUtilities.invokeLater(() -> {
+                        JScrollBar newVerticalScrollBar = chatOutputScrollPane.getVerticalScrollBar();
+                        newVerticalScrollBar.setValue(newVerticalScrollBar.getMaximum());
+                    });
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -177,11 +214,11 @@ public class JoinServerFrame {
                     return false;
                 } else {
                     access = true;
-                    chatOutputTextArea.setText("");
+                    messagesPanel.removeAll();
                     messages = new LinkedList<String>();
                     MainFrame.clientMessages = new LinkedList<String>();
-                    MainFrame.clientMessages.add(encrypt("-- Welcome " + username + " to the server!", MainFrame.clientHashedPassword));
-                    sendMessage(encrypt("-- " + username + " joined the server.", MainFrame.clientHashedPassword), writer);
+                    MainFrame.clientMessages.add(encrypt("Server: Welcome " + username + " to the server!", MainFrame.clientHashedPassword));
+                    sendMessage(encrypt("Server: " + username + " joined the server.", MainFrame.clientHashedPassword), writer);
                     clientFrame.setVisible(true);
                 }
             } catch (NoSuchElementException e) {
@@ -230,7 +267,7 @@ public class JoinServerFrame {
                 while ((receiveBytesRead = inputStream.read(receiveBuffer)) != -1) {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
-                MainFrame.clientMessages.add(encrypt("-- Archivo guardado en " + fileName, MainFrame.clientHashedPassword));
+                MainFrame.clientMessages.add(encrypt("Local: Archivo guardado en " + fileName, MainFrame.clientHashedPassword));
             } catch (Exception e) {
                 e.printStackTrace();
             }

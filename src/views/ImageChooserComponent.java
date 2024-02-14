@@ -61,7 +61,8 @@ public class ImageChooserComponent extends JPanel {
     public void setPath(String path) {
         this.path = path;
     }
-    public void setText(String text){
-        chooseButton.setText(text);
+
+    public JButton getChooseButton() {
+        return chooseButton;
     }
 }

@@ -38,7 +38,7 @@ public class HostServerFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    HandlerHostServer.broadcastServerMessage("-- Server closed");
+                    HandlerHostServer.broadcastServerMessage("Server: Server closed");
                     Thread.sleep(100);
                     MainFrame.serverSocket.close();
                 }catch(Exception ex){

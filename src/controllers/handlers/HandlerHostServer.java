@@ -58,7 +58,7 @@ public class HandlerHostServer extends Thread {
                     broadcast(message, writer);
                     try {
                         if (message.split("/")[1].equals("list")) {
-                            String users = "-- Connected users: ";
+                            String users = "Server: Connected users: ";
                             for (int i = 0; i < connectedUsers.size(); i++) {
                                 users += "\n" + connectedUsers.get(i);
                             }
@@ -68,11 +68,9 @@ public class HandlerHostServer extends Thread {
                     try {
                         if (message.split(" ")[2].equals("joined")) {
                             connectedUsers.add(message.split(" ")[1]);
-                            connectedIPs.add(MainFrame.serverMessages.getLast().split("/")[1].split("-")[0].replace(")", ""));
+                            connectedIPs.add(MainFrame.serverMessages.getLast().split("/")[1].split("S")[0].replace(")", ""));
+                            System.out.println(connectedIPs.get(connectedIPs.size()-1));
                         }if (message.split(" ")[2].equals("left")) {
-                            String ip = message.split(" ")[0];
-                            String ipSplitted[] = ip.split("");
-                            if ((ipSplitted[ipSplitted.length - 1] + ipSplitted[ipSplitted.length - 2]).equals("--")) {
                                 connectedUsers.remove(message.split(" ")[1]);
                                 int slashIndex = message.indexOf('/');
 
@@ -86,7 +84,6 @@ public class HandlerHostServer extends Thread {
                                         connectedIPs.remove(ipAddress);
                                     }
                                 }
-                            }
                         }
                         if (message.split(" ")[2].equals("sent")) {
                             try {

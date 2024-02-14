@@ -43,6 +43,7 @@ public class SettingsFrame {
                     }catch(Exception ex){
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(frame, "Error", "Error exporting settings infromation", JOptionPane.ERROR_MESSAGE);
+                        frame.dispose();
                     }
                 } else {
                     frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -58,5 +59,6 @@ public class SettingsFrame {
         frame.pack();
         frame.setVisible(true);
         frame.setBounds(0,0, WIDTH, HEIGHT);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 }

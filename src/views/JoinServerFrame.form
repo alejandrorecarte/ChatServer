@@ -25,12 +25,14 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="20a7d" class="javax.swing.JTextArea" binding="chatOutputTextArea">
+          <grid id="585d3" binding="messagesPanel" layout-manager="CardLayout" hgap="0" vgap="0">
             <constraints/>
             <properties>
-              <editable value="false"/>
+              <background color="-1"/>
             </properties>
-          </component>
+            <border type="none"/>
+            <children/>
+          </grid>
         </children>
       </scrollpane>
       <component id="df4af" class="javax.swing.JButton" binding="sendButton" default-binding="true">
