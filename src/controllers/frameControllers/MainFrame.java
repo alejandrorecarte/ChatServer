@@ -214,13 +214,13 @@ public class MainFrame {
             protected Void doInBackground() throws Exception {
                 try {
                     serverSocket = new ServerSocket(Integer.parseInt(hostPortField.getText()));
-                    serverMessages.add("-- Chat Server is running...");
+                    serverMessages.add("Server: Chat Server is running...");
                     while (true) {
                         new HandlerHostServer(serverSocket.accept(), writers).start();
                     }
                 } catch (SocketException e) {
                     if(e.getMessage().equals("Interrupted function call: accept failed")){
-                        serverMessages.add("-- Server closed");
+                        serverMessages.add("Server: Server closed");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

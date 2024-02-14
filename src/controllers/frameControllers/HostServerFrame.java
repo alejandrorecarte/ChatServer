@@ -14,6 +14,8 @@ import static controllers.frameControllers.MainFrame.WIDTH;
 import static controllers.frameControllers.MainFrame.mainFrame;
 
 public class HostServerFrame {
+    private static final int WIDTH = 600;
+    private static final int HEIGHT = 600;
     public static JFrame hostFrame;
     private JLabel wideRoomServerLabel;
     private JTextArea chatOutputTextArea;
@@ -29,7 +31,7 @@ public class HostServerFrame {
         hostFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         hostFrame.pack();
         hostFrame.setVisible(true);
-        hostFrame.setBounds(mainFrame.getX() + WIDTH, mainFrame.getY(), 600, 400);
+        hostFrame.setBounds(mainFrame.getX(), mainFrame.getY()+ MainFrame.HEIGHT, WIDTH, HEIGHT);
     }
 
     public HostServerFrame() {

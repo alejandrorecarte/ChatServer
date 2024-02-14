@@ -203,7 +203,7 @@
       <component id="87269" class="javax.swing.JLabel" binding="wideRoomLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-          <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="0.1"/>
+          <gridbag top="10" left="10" bottom="3" right="10" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
           <font size="16"/>

@@ -58,9 +58,13 @@ public class HandlerHostServer extends Thread {
                     broadcast(message, writer);
                     try {
                         if (message.split("/")[1].equals("list")) {
-                            String users = "Server: Connected users: ";
+                            String users = "Server: Connected users > ";
                             for (int i = 0; i < connectedUsers.size(); i++) {
-                                users += "\n" + connectedUsers.get(i);
+                                if(i != connectedUsers.size()-1) {
+                                    users += connectedUsers.get(i) + " (" + connectedIPs.get(i) + ")" + "| ";
+                                }else{
+                                    users += connectedUsers.get(i) + "(" + connectedIPs.get(i) + ")";
+                                }
                             }
                             writer.println(encrypt(users, MainFrame.hostHashedPassword));
                         }
@@ -86,8 +90,7 @@ public class HandlerHostServer extends Thread {
                                 }
                         }
                         if (message.split(" ")[2].equals("sent")) {
-                            try {
-                                ServerSocket imageSocketServer = new ServerSocket(2020);
+                            try (ServerSocket imageSocketServer = new ServerSocket(2020)){
                                 Socket imageSocket = imageSocketServer.accept();
                                 Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, message.split(" ")[1]));
                                 handlerThread.start();
@@ -153,6 +156,8 @@ public class HandlerHostServer extends Thread {
                 while ((receiveBytesRead = inputStream.read(receiveBuffer)) != -1) {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
+                socket.close();
+                System.out.println(connectedIPs.toString());
                 for(int i = 0; i < connectedIPs.size(); i++) {
                     try (Socket imageSocket = new Socket(connectedIPs.get(i), 2021);
                          OutputStream outputStream = imageSocket.getOutputStream();

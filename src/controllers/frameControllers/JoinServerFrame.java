@@ -23,13 +23,14 @@ import static controllers.Encoding.encrypt;
 import static controllers.frameControllers.MainFrame.*;
 
 public class JoinServerFrame {
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 1000;
     public static JFrame clientFrame;
     public JPanel mainPanel;
     private JLabel wideRoomClientLabel;
     private JButton sendButton;
     private JTextField chatInputField;
     private JScrollPane chatOutputScrollPane;
-    private JScrollPane chatInputScrollPane;
     private ImageChooserComponent imageChooserComponent;
     private JPanel messagesPanel;
     public String username;
@@ -43,13 +44,16 @@ public class JoinServerFrame {
         clientFrame.setContentPane(new JoinServerFrame(username, writer).mainPanel);
         clientFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         clientFrame.pack();
-        clientFrame.setBounds(mainFrame.getX(), mainFrame.getY() + HEIGHT, 600, 400);
+        clientFrame.setBounds(mainFrame.getX() + MainFrame.WIDTH, mainFrame.getY() , WIDTH, HEIGHT);
     }
 
     public JoinServerFrame(String username, PrintWriter writer) {
         this.username = username;
         this.writer = writer;
         messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.Y_AXIS));
+        chatOutputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        chatOutputScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         access = false;
         messages  = new LinkedList<String>();
         actualizar();
@@ -145,32 +149,43 @@ public class JoinServerFrame {
     public synchronized void actualizarChat(){
         if (JoinServerFrame.messages.size() < (MainFrame.clientMessages.size())) {
             try {
+
                 JScrollBar verticalScrollBar = chatOutputScrollPane.getVerticalScrollBar();
                 boolean keepBottom = false;
                 double oldValue = verticalScrollBar.getSize().getHeight() + verticalScrollBar.getValue();
-                if(oldValue >= verticalScrollBar.getMaximum() - 15){
+                if(oldValue >= verticalScrollBar.getMaximum() || verticalScrollBar.getSize().getHeight() == 0){
                     keepBottom = true;
                 }
+
                 JoinServerFrame.messages.add(MainFrame.clientMessages.getLast());
-                String message = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword).split(":")[1];
-                String username = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword).split(":")[0];
+                String username;
+                String message;
+                try {
+                    message = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword).split(":")[1];
+                    username = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword).split(":")[0];
+                }catch(Exception e){
+                    message = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword);
+                    username = "null";
+                }
 
                 try {
-                    MessagePanel messagePanel = new MessagePanel(username, message);
+                    MessagePanel messagePanel = new MessagePanel(username, message, Color.decode("#5e717f"));
                     messagePanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                    messagesPanel.add(messagePanel);
-                    System.out.println(username);
                     if(!username.equals("Server")){
                         messagePanel.getMessageLabel().setFont(new Font("arial", Font.PLAIN, 12));
-                        messagePanel.getMessageLabel().setBackground(Color.CYAN);
                     }if(username.equals("Local")){
                         ImageIcon image = new ImageIcon(messagePanel.getMessageLabel().getText().split(" ")[4]);
                         Image imageScaled = image.getImage().getScaledInstance(200,200, Image.SCALE_SMOOTH);
                         ImageIcon scaledImageIcon = new ImageIcon(imageScaled);
+                        messagePanel.setToolTipText(messagePanel.getMessageLabel().getText());
                         messagePanel.getMessageLabel().setText("");
                         messagePanel.getMessageLabel().setIcon(scaledImageIcon);
                         messagePanel.getMessageLabel().repaint();
+                        messagePanel.setColor(Color.decode("#213541"));
+                    }if(username.equals(this.username)){
+                        messagePanel.setColor(Color.decode("#213541"));
                     }
+                    messagesPanel.add(messagePanel);
                 }catch (ArrayIndexOutOfBoundsException ex){
                 }
 
@@ -179,13 +194,14 @@ public class JoinServerFrame {
 
                 try {
                     if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
-                        ServerSocket imageSocketServer = new ServerSocket(2021);
-                        Socket imageSocket = imageSocketServer.accept();
-                        Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
-                        handlerThread.start();
+                        try(ServerSocket imageSocketServer = new ServerSocket(2021);) {
+                            Socket imageSocket = imageSocketServer.accept();
+                            Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
+                            handlerThread.start();
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
                     }
-                }catch (SocketException e) {
-                    e.printStackTrace();
                 }catch(Exception e){
                 }
 
@@ -268,6 +284,7 @@ public class JoinServerFrame {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
                 MainFrame.clientMessages.add(encrypt("Local: Archivo guardado en " + fileName, MainFrame.clientHashedPassword));
+                socket.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
