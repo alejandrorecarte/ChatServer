@@ -54,7 +54,7 @@ public class JoinServerFrame {
         messages = new LinkedList<String>();
         this.username = username;
         this.writer = writer;
-        messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.Y_AXIS));
+        messagesPanel.setLayout(new GridBagLayout());
         chatOutputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         chatOutputScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -187,67 +187,61 @@ public class JoinServerFrame {
                 }
 
                 JoinServerFrame.messages.add(MainFrame.clientMessages.getLast());
+                String encryptedMessage = JoinServerFrame.messages.getLast();
+                String decryptedMessage = decrypt(encryptedMessage, MainFrame.clientHashedPassword);
                 String username;
                 String message;
                 try {
-                    message = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword).split(":")[1];
-                    username = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword).split(":")[0];
-                }catch(Exception e){
-                    message = decrypt(JoinServerFrame.messages.getLast(), MainFrame.clientHashedPassword);
+                    message = decryptedMessage.split(":")[1];
+                    username = decryptedMessage.split(":")[0];
+                } catch (Exception e){
+                    message = decryptedMessage;
                     username = "null";
                 }
 
-                try {
-                    MessagePanel messagePanel = new MessagePanel(username, message, Color.decode("#5e717f"));
-                    messagePanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                    if(!username.equals("Server")){
-                        messagePanel.getMessageLabel().setFont(new Font("arial", Font.PLAIN, 12));
-                    }if(username.equals("Local")){
-                        ImageIcon image = new ImageIcon(messagePanel.getMessageLabel().getText().split(" ")[4]);
-                        Image imageScaled = image.getImage().getScaledInstance(200,200, Image.SCALE_SMOOTH);
-                        ImageIcon scaledImageIcon = new ImageIcon(imageScaled);
-                        messagePanel.setToolTipText(messagePanel.getMessageLabel().getText());
-                        messagePanel.getMessageLabel().setText("");
-                        messagePanel.getMessageLabel().setIcon(scaledImageIcon);
-                        messagePanel.getMessageLabel().repaint();
-                        messagePanel.setColor(Color.decode("#213541"));
-                    }if(username.equals(this.username)){
-                        messagePanel.setColor(Color.decode("#213541"));
-                    }
-                    messagesPanel.add(messagePanel);
-                }catch (ArrayIndexOutOfBoundsException ex){
+                MessagePanel messagePanel = new MessagePanel(username, message, Color.decode("#5e717f"));
+                messagePanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+                if(!username.equals("Server")){
+                    messagePanel.getMessageLabel().setFont(new Font("arial", Font.PLAIN, 12));
+                }
+                if(username.equals("Local")){
+                    ImageIcon image = new ImageIcon(messagePanel.getMessageLabel().getText().split(" ")[4]);
+                    Image imageScaled = image.getImage().getScaledInstance(200,200, Image.SCALE_SMOOTH);
+                    ImageIcon scaledImageIcon = new ImageIcon(imageScaled);
+                    messagePanel.setToolTipText(messagePanel.getMessageLabel().getText());
+                    messagePanel.getMessageLabel().setText("");
+                    messagePanel.getMessageLabel().setIcon(scaledImageIcon);
+                    messagePanel.getMessageLabel().repaint();
+                    messagePanel.setColor(Color.decode("#213541"));
+                }
+                if(username.equals(this.username)){
+                    messagePanel.setColor(Color.decode("#213541"));
                 }
 
+                if (username.equals(this.username)) {
+                    messagesPanel.add(messagePanel, new GridBagConstraints(0, messagesPanel.getComponentCount(), 1, 1, 1.0, 0.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.CENTER,
+                            new Insets(3,3,10,3), 0, 0));
+                } else {
+                    messagesPanel.add(messagePanel, new GridBagConstraints(0, messagesPanel.getComponentCount(), 1, 1, 1.0, 0.0, GridBagConstraints.SOUTHWEST, GridBagConstraints.CENTER,
+                            new Insets(3,10,3,3), 0, 0));// Alinea a la izquierda
+                }
                 clientFrame.revalidate();
                 clientFrame.repaint();
 
-                try {
-                    if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
-                        try(ServerSocket imageSocketServer = new ServerSocket(Streams.importarImagePortSenderClient());) {
-                            Socket imageSocket = imageSocketServer.accept();
-                            Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
-                            handlerThread.start();
-                        }catch(Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                }catch(Exception e){
-                }
-
-                Thread.sleep(100);
-
-                if(keepBottom){
+                if(keepBottom) {
                     SwingUtilities.invokeLater(() -> {
                         JScrollBar newVerticalScrollBar = chatOutputScrollPane.getVerticalScrollBar();
                         newVerticalScrollBar.setValue(newVerticalScrollBar.getMaximum());
                     });
-
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
+
 
     private boolean checkPassword() {
         if (!access) {
