@@ -1,5 +1,6 @@
 package controllers.handlers;
 
+import controllers.Streams;
 import controllers.frameControllers.MainFrame;
 import org.w3c.dom.ls.LSOutput;
 
@@ -25,7 +26,6 @@ public class HandlerHostServer extends Thread {
     private static Set<PrintWriter> writers;
     private static ArrayList<String> connectedUsers = new ArrayList<String>();
     private static ArrayList<String> connectedIPs = new ArrayList<String>();
-
     public HandlerHostServer(Socket socket ,Set<PrintWriter> writers) {
         this.socket = socket;
         this.writers = writers;
@@ -40,7 +40,6 @@ public class HandlerHostServer extends Thread {
             writers.add(writer);
 
             while (true) {
-
                 String message = reader.readLine();
                 if (message == null) {
                     return;
@@ -73,7 +72,6 @@ public class HandlerHostServer extends Thread {
                         if (message.split(" ")[2].equals("joined")) {
                             connectedUsers.add(message.split(" ")[1]);
                             connectedIPs.add(MainFrame.serverMessages.getLast().split("/")[1].split("S")[0].replace(")", ""));
-                            System.out.println(connectedIPs.get(connectedIPs.size()-1));
                         }if (message.split(" ")[2].equals("left")) {
                                 connectedUsers.remove(message.split(" ")[1]);
                                 int slashIndex = message.indexOf('/');
@@ -90,7 +88,7 @@ public class HandlerHostServer extends Thread {
                                 }
                         }
                         if (message.split(" ")[2].equals("sent")) {
-                            try (ServerSocket imageSocketServer = new ServerSocket(2020)){
+                            try (ServerSocket imageSocketServer = new ServerSocket(Streams.importarImagePortReceiverServer())){
                                 Socket imageSocket = imageSocketServer.accept();
                                 Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, message.split(" ")[1]));
                                 handlerThread.start();
@@ -146,7 +144,7 @@ public class HandlerHostServer extends Thread {
         public void run() {
             try {
                 InputStream inputStream = socket.getInputStream();
-                String fileName = "src/files/server/image"+ sender +Date.from(Instant.now()).getDate()+Date.from(Instant.now()).getMonth()
+                String fileName = Streams.importarFilesDownloadsServerPath() + "/image"+ sender +Date.from(Instant.now()).getDate()+Date.from(Instant.now()).getMonth()
                         +Date.from(Instant.now()).getYear()+"_"+Date.from(Instant.now()).getHours()+Date.from(Instant.now()).getMinutes()+Date.from(Instant.now()).getSeconds()+".jpg";
                 FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 
@@ -157,9 +155,8 @@ public class HandlerHostServer extends Thread {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
                 socket.close();
-                System.out.println(connectedIPs.toString());
                 for(int i = 0; i < connectedIPs.size(); i++) {
-                    try (Socket imageSocket = new Socket(connectedIPs.get(i), 2021);
+                    try (Socket imageSocket = new Socket(connectedIPs.get(i), Streams.importarImagePortSenderServer());
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(fileName)) {
                         Thread.sleep(100);

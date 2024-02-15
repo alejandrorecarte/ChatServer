@@ -1,5 +1,6 @@
 package controllers.frameControllers;
 
+import controllers.Streams;
 import org.w3c.dom.ls.LSOutput;
 import views.ImageChooserComponent;
 import views.MessagePanel;
@@ -12,6 +13,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,7 +43,7 @@ public class JoinServerFrame {
     private PrintWriter writer;
 
     public static void startUI(String username, PrintWriter writer) {
-        clientFrame = new JFrame("Wide Room Client");
+        clientFrame = new JFrame("WideRoom Client");
         clientFrame.setContentPane(new JoinServerFrame(username, writer).mainPanel);
         clientFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         clientFrame.pack();
@@ -48,6 +51,7 @@ public class JoinServerFrame {
     }
 
     public JoinServerFrame(String username, PrintWriter writer) {
+        messages = new LinkedList<String>();
         this.username = username;
         this.writer = writer;
         messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.Y_AXIS));
@@ -56,7 +60,19 @@ public class JoinServerFrame {
 
         access = false;
         messages  = new LinkedList<String>();
-        actualizar();
+
+        Timer timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (checkPassword()) {
+                    new Handler().start();
+                }else{
+                    ((Timer) e.getSource()).stop();
+                }
+            }
+        });
+        timer.start();
+
         sendMessage("/requestHashedPassword", writer);
 
         sendButton.addActionListener(new ActionListener(){
@@ -69,7 +85,7 @@ public class JoinServerFrame {
                 if(imageChooserComponent.getPath()!=null){
                     writer.println(encrypt("Server: " + username + " sent an image.", MainFrame.clientHashedPassword));
                     MainFrame.clientMessages.add(encrypt("Server: " + username + " sent an image.", MainFrame.clientHashedPassword));
-                    try (Socket imageSocket = new Socket(MainFrame.joinIP, 2020);
+                    try (Socket imageSocket = new Socket(MainFrame.joinIP, Streams.importarImagePortReceiverClient());
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(imageChooserComponent.getPath())) {
 
@@ -114,6 +130,32 @@ public class JoinServerFrame {
                 int confirm = JOptionPane.showConfirmDialog(clientFrame, "Do you want to exit this chat server?", "Exit confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
                     sendMessage(encrypt("Server: " + username + " left the server.", MainFrame.clientHashedPassword), writer);
+                    clientFrame.dispose();
+                    try {
+                        if(Streams.importarAutodestroyImagesClient()) {
+                            Path directorioPath = Paths.get(Streams.importarFilesDownloadsClientPath());
+
+                            if (!Files.exists(directorioPath)) {
+                                System.out.println("El directorio especificado no existe.");
+                                return;
+                            }
+                            Files.walkFileTree(directorioPath, new SimpleFileVisitor<Path>() {
+                                @Override
+                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                    if (Files.isRegularFile(file) && file.toString().toLowerCase().endsWith(".jpg")) {
+                                        Files.delete(file);
+                                        System.out.println("Archivo eliminado: " + file);
+                                    }
+                                    return FileVisitResult.CONTINUE;
+                                }
+                            });
+                            timer.stop();
+                        }
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (ClassNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 } else {
                     clientFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
                 }
@@ -133,19 +175,6 @@ public class JoinServerFrame {
         writer.println(message);
     }
 
-    public void actualizar() {
-        Timer timer = new Timer(100, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (checkPassword()) {
-                    new Handler().start();
-                }else{
-                    ((Timer) e.getSource()).stop();
-                }
-            }
-        });
-        timer.start();
-    }
     public synchronized void actualizarChat(){
         if (JoinServerFrame.messages.size() < (MainFrame.clientMessages.size())) {
             try {
@@ -194,7 +223,7 @@ public class JoinServerFrame {
 
                 try {
                     if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
-                        try(ServerSocket imageSocketServer = new ServerSocket(2021);) {
+                        try(ServerSocket imageSocketServer = new ServerSocket(Streams.importarImagePortSenderClient());) {
                             Socket imageSocket = imageSocketServer.accept();
                             Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
                             handlerThread.start();
@@ -274,7 +303,7 @@ public class JoinServerFrame {
             try {
                 InputStream inputStream = socket.getInputStream();
                 Calendar calendar = Calendar.getInstance();
-                String fileName = "src/files/client/image" + sender + calendar.get(Calendar.DAY_OF_MONTH) + calendar.get(Calendar.MONTH)
+                String fileName = Streams.importarFilesDownloadsClientPath() + "/image" + sender + calendar.get(Calendar.DAY_OF_MONTH) + calendar.get(Calendar.MONTH)
                         + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.HOUR) + calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + ".jpg";
                 FileOutputStream fileOutputStream = new FileOutputStream(fileName);
                 byte[] receiveBuffer = new byte[1024];

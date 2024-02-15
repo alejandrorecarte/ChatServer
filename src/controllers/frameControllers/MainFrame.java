@@ -8,13 +8,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.util.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.Socket;
 
 import static controllers.Encoding.*;
@@ -52,7 +49,6 @@ public class MainFrame {
     public static LinkedList<String> serverMessages = new LinkedList<String>();
     public static LinkedList<String> clientMessages = new LinkedList<String>();
     private static final Set<PrintWriter> writers = new HashSet<>();
-    public static ServerSocket serverSocket;
     public static Socket clientSocket;
     private BufferedReader clientReader;
     private PrintWriter clientWriter;
@@ -61,9 +57,33 @@ public class MainFrame {
     public static String clientHashedPassword;
     public static String hostHashedPassword;
     public static String joinIP;
+    private ServerSocket serverSocket;
 
+    public static void startUI() {
+        mainFrame = new JFrame("WideRoom");
+        mainFrame.setContentPane(new MainFrame().mainPanel);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.pack();
+        mainFrame.setVisible(true);
+        mainFrame.setBounds(0,0,WIDTH,HEIGHT);
+    }
 
     public MainFrame() {
+
+        File filesDir = new File("src/files");
+        if(!filesDir.exists()){
+            filesDir.mkdir();
+        }
+        File clientDir = new File("src/files/client");
+        if(!clientDir.exists()){
+            clientDir.mkdir();
+        }
+        File serverDir = new File("src/files/server");
+        if(!serverDir.exists()){
+            serverDir.mkdir();
+        }
+
+
         profiles = new ArrayList[10];
         try {
             profiles = Streams.importarPreferences();
@@ -91,11 +111,21 @@ public class MainFrame {
                 if( !String.valueOf(hostPortField.getText()).equals("") && !String.valueOf(hostPasswordField.getText()).equals("")) {
                     hostHashedPassword = hashPassword(hostPasswordField.getText());
                     controllers.frameControllers.HostServerFrame.startUI();
-                    serverMessages = new LinkedList<String>();
+
+                    // Cerrar el servidor anterior si existe
+                    if (serverSocket != null && !serverSocket.isClosed()) {
+                        try {
+                            serverSocket.close();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+
+                    // Iniciar un nuevo servidor
                     startServer();
                 }
             }
-        });
+        });;
 
         joinServerButton.addActionListener(new ActionListener() {
             @Override
@@ -199,30 +229,17 @@ public class MainFrame {
         });
     }
 
-    public static void startUI() {
-        mainFrame = new JFrame("WideRoom");
-        mainFrame.setContentPane(new MainFrame().mainPanel);
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.pack();
-        mainFrame.setVisible(true);
-        mainFrame.setBounds(0,0,WIDTH,HEIGHT);
-    }
-
     private void startServer() {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
                 try {
                     serverSocket = new ServerSocket(Integer.parseInt(hostPortField.getText()));
+                    serverMessages = new LinkedList<String>();
                     serverMessages.add("Server: Chat Server is running...");
-                    while (true) {
-                        new HandlerHostServer(serverSocket.accept(), writers).start();
-                    }
-                } catch (SocketException e) {
-                    if(e.getMessage().equals("Interrupted function call: accept failed")){
-                        serverMessages.add("Server: Server closed");
-                    }
-                } catch (IOException e) {
+                    HandlerHostServer handlerHostServer= new HandlerHostServer(serverSocket.accept(), writers);
+                    handlerHostServer.start();
+                } catch (Exception e){
                     e.printStackTrace();
                 }
                 return null;
@@ -230,8 +247,6 @@ public class MainFrame {
 
             @Override
             protected void done() {
-                // Puedes realizar acciones después de que el servidor haya terminado
-                // Esto se ejecutará en el hilo de despacho de eventos de Swing
             }
         };
         worker.execute();
@@ -242,9 +257,8 @@ public class MainFrame {
             @Override
             protected Void doInBackground() throws Exception {
                 try {
-
+                    clientMessages = new LinkedList<String>();
                     String username = joinUsernameField.getText();
-
                         Thread receiverThread = new Thread(() -> {
                             try {
                                 String serverMessage;
@@ -253,7 +267,7 @@ public class MainFrame {
                                 }
                             } catch (SocketException e) {
                                 if (e.getMessage().equals("Socket closed"))
-                                    clientMessages.add("-- Exited from server.");
+                                    clientMessages.add("Server: Exited from server.");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

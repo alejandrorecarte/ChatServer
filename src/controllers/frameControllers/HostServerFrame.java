@@ -1,57 +1,47 @@
 package controllers.frameControllers;
 
+import controllers.Streams;
 import controllers.handlers.HandlerHostServer;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import static controllers.frameControllers.MainFrame.WIDTH;
+import static controllers.Encoding.encrypt;
 import static controllers.frameControllers.MainFrame.mainFrame;
 
 public class HostServerFrame {
     private static final int WIDTH = 600;
     private static final int HEIGHT = 600;
-    public static JFrame hostFrame;
+    public static JFrame serverFrame;
     private JLabel wideRoomServerLabel;
     private JTextArea chatOutputTextArea;
     public JPanel mainPanel;
     private JButton stopButton;
     private JScrollPane chatOutputScrollPane;
-    public static LinkedList<String> messages = new LinkedList<String>();;
+    public static LinkedList<String> messages;
     private static final Set<PrintWriter> writers = new HashSet<>();
 
     public static void startUI(){
-        hostFrame = new JFrame("Wide Room Server");
-        hostFrame.setContentPane(new HostServerFrame().mainPanel);
-        hostFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        hostFrame.pack();
-        hostFrame.setVisible(true);
-        hostFrame.setBounds(mainFrame.getX(), mainFrame.getY()+ MainFrame.HEIGHT, WIDTH, HEIGHT);
+        serverFrame = new JFrame("WideRoom Server");
+        serverFrame.setContentPane(new HostServerFrame().mainPanel);
+        serverFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        serverFrame.pack();
+        serverFrame.setVisible(true);
+        serverFrame.setBounds(mainFrame.getX(), mainFrame.getY()+ MainFrame.HEIGHT, WIDTH, HEIGHT);
     }
 
     public HostServerFrame() {
-        actualizar();
-        stopButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    HandlerHostServer.broadcastServerMessage("Server: Server closed");
-                    Thread.sleep(100);
-                    MainFrame.serverSocket.close();
-                }catch(Exception ex){
-                    ex.printStackTrace();
-                }
-                hostFrame.dispose();
-            }
-        });
-    }
-
-    public void actualizar() {
+        messages = new LinkedList<String>();
         Timer timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -59,6 +49,79 @@ public class HostServerFrame {
             }
         });
         timer.start();
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    try {
+                        if(Streams.importarAutodestroyImagesServer()) {
+                            Path directorioPath = Paths.get(Streams.importarFilesDownloadsServerPath());
+
+                            if (!Files.exists(directorioPath)) {
+                                System.out.println("El directorio especificado no existe.");
+                                return;
+                            }
+                            Files.walkFileTree(directorioPath, new SimpleFileVisitor<Path>() {
+                                @Override
+                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                    if (Files.isRegularFile(file) && file.toString().toLowerCase().endsWith(".jpg")) {
+                                        Files.delete(file);
+                                        System.out.println("Archivo eliminado: " + file);
+                                    }
+                                    return FileVisitResult.CONTINUE;
+                                }
+                            });
+                        }
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (ClassNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    HandlerHostServer.broadcastServerMessage("Server: Server closed");
+                    timer.stop();
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+                serverFrame.dispose();
+
+            }
+        });
+
+        serverFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int confirm = JOptionPane.showConfirmDialog(serverFrame, "Do you want to exit this chat server?", "Exit confirmation", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    try {
+                        if(Streams.importarAutodestroyImagesServer()) {
+                            Path directorioPath = Paths.get(Streams.importarFilesDownloadsServerPath());
+
+                            if (!Files.exists(directorioPath)) {
+                                System.out.println("El directorio especificado no existe.");
+                                return;
+                            }
+                            Files.walkFileTree(directorioPath, new SimpleFileVisitor<Path>() {
+                                @Override
+                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                    if (Files.isRegularFile(file) && file.toString().toLowerCase().endsWith(".jpg")) {
+                                        Files.delete(file);
+                                        System.out.println("Archivo eliminado: " + file);
+                                    }
+                                    return FileVisitResult.CONTINUE;
+                                }
+                            });
+                        }
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (ClassNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    serverFrame.dispose();
+                } else {
+                    serverFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                }
+            }
+        });
     }
 
     public synchronized void actualizarChat(){

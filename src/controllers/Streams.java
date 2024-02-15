@@ -57,4 +57,148 @@ public class Streams {
         fileReader.close();
         return path;
     }
+
+    public static void exportarTextPortClient(int port) throws IOException {
+        FileOutputStream fileWriter = new FileOutputStream("src/resources/textportclient");
+        ObjectOutputStream objectWriter = new ObjectOutputStream(fileWriter);
+        objectWriter.writeObject(port);
+        objectWriter.close();
+        fileWriter.close();
+    }
+
+    public static int importarTextPortClient() throws IOException, ClassNotFoundException{
+        int port = 0;
+        FileInputStream fileReader = new FileInputStream("src/resources/textportclient");
+        ObjectInputStream objectReader = new ObjectInputStream(fileReader);
+        port = (int) objectReader.readObject();
+        objectReader.close();
+        fileReader.close();
+        return port;
+    }
+
+    public static void exportarTextPortServer(int port) throws IOException {
+        FileOutputStream fileWriter = new FileOutputStream("src/resources/textportserver");
+        ObjectOutputStream objectWriter = new ObjectOutputStream(fileWriter);
+        objectWriter.writeObject(port);
+        objectWriter.close();
+        fileWriter.close();
+    }
+
+    public static int importarTextPortServer() throws IOException, ClassNotFoundException{
+        int port = 0;
+        FileInputStream fileReader = new FileInputStream("src/resources/textportserver");
+        ObjectInputStream objectReader = new ObjectInputStream(fileReader);
+        port = (int) objectReader.readObject();
+        objectReader.close();
+        fileReader.close();
+        return port;
+    }
+
+    public static void exportarImagePortSenderClient(int port) throws IOException {
+        FileOutputStream fileWriter = new FileOutputStream("src/resources/imageportsenderclient");
+        ObjectOutputStream objectWriter = new ObjectOutputStream(fileWriter);
+        objectWriter.writeObject(port);
+        objectWriter.close();
+        fileWriter.close();
+    }
+
+    public static int importarImagePortSenderClient() throws IOException, ClassNotFoundException{
+        int port = 0;
+        FileInputStream fileReader = new FileInputStream("src/resources/imageportsenderclient");
+        ObjectInputStream objectReader = new ObjectInputStream(fileReader);
+        port = (int) objectReader.readObject();
+        objectReader.close();
+        fileReader.close();
+        return port;
+    }
+
+    public static void exportarImagePortSenderServer(int port) throws IOException {
+        FileOutputStream fileWriter = new FileOutputStream("src/resources/imageportsenderserver");
+        ObjectOutputStream objectWriter = new ObjectOutputStream(fileWriter);
+        objectWriter.writeObject(port);
+        objectWriter.close();
+        fileWriter.close();
+    }
+
+    public static int importarImagePortSenderServer() throws IOException, ClassNotFoundException{
+        int port = 0;
+        FileInputStream fileReader = new FileInputStream("src/resources/imageportsenderserver");
+        ObjectInputStream objectReader = new ObjectInputStream(fileReader);
+        port = (int) objectReader.readObject();
+        objectReader.close();
+        fileReader.close();
+        return port;
+    }
+
+    public static void exportarImagePortReceiverClient(int port) throws IOException {
+        FileOutputStream fileWriter = new FileOutputStream("src/resources/imageportreceiverclient");
+        ObjectOutputStream objectWriter = new ObjectOutputStream(fileWriter);
+        objectWriter.writeObject(port);
+        objectWriter.close();
+        fileWriter.close();
+    }
+
+    public static int importarImagePortReceiverClient() throws IOException, ClassNotFoundException{
+        int port = 0;
+        FileInputStream fileReader = new FileInputStream("src/resources/imageportreceiverclient");
+        ObjectInputStream objectReader = new ObjectInputStream(fileReader);
+        port = (int) objectReader.readObject();
+        objectReader.close();
+        fileReader.close();
+        return port;
+    }
+
+    public static void exportarImagePortReceiverServer(int port) throws IOException {
+        FileOutputStream fileWriter = new FileOutputStream("src/resources/imageportreceiverserver");
+        ObjectOutputStream objectWriter = new ObjectOutputStream(fileWriter);
+        objectWriter.writeObject(port);
+        objectWriter.close();
+        fileWriter.close();
+    }
+
+    public static int importarImagePortReceiverServer() throws IOException, ClassNotFoundException{
+        int port = 0;
+        FileInputStream fileReader = new FileInputStream("src/resources/imageportreceiverserver");
+        ObjectInputStream objectReader = new ObjectInputStream(fileReader);
+        port = (int) objectReader.readObject();
+        objectReader.close();
+        fileReader.close();
+        return port;
+    }
+
+    public static void exportarAutodestroyImagesClient(boolean autodestroy) throws IOException {
+        FileOutputStream fileWriter = new FileOutputStream("src/resources/autodestroyimagesclient");
+        ObjectOutputStream objectWriter = new ObjectOutputStream(fileWriter);
+        objectWriter.writeObject(autodestroy);
+        objectWriter.close();
+        fileWriter.close();
+    }
+
+    public static boolean importarAutodestroyImagesClient() throws IOException, ClassNotFoundException{
+        boolean autodestroy;
+        FileInputStream fileReader = new FileInputStream("src/resources/autodestroyimagesclient");
+        ObjectInputStream objectReader = new ObjectInputStream(fileReader);
+        autodestroy = (boolean) objectReader.readObject();
+        objectReader.close();
+        fileReader.close();
+        return autodestroy;
+    }
+
+    public static void exportarAutodestroyImagesServer(boolean autodestroy) throws IOException {
+        FileOutputStream fileWriter = new FileOutputStream("src/resources/autodestroyimagesserver");
+        ObjectOutputStream objectWriter = new ObjectOutputStream(fileWriter);
+        objectWriter.writeObject(autodestroy);
+        objectWriter.close();
+        fileWriter.close();
+    }
+
+    public static boolean importarAutodestroyImagesServer() throws IOException, ClassNotFoundException{
+        boolean autodestroy;
+        FileInputStream fileReader = new FileInputStream("src/resources/autodestroyimagesserver");
+        ObjectInputStream objectReader = new ObjectInputStream(fileReader);
+        autodestroy = (boolean) objectReader.readObject();
+        objectReader.close();
+        fileReader.close();
+        return autodestroy;
+    }
 }
