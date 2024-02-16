@@ -4,7 +4,9 @@
     <constraints>
       <xy x="20" y="20" width="500" height="415"/>
     </constraints>
-    <properties/>
+    <properties>
+      <background color="-16777216"/>
+    </properties>
     <border type="none"/>
     <children>
       <component id="8c7ae" class="javax.swing.JLabel" binding="wideRoomServerLabel">
@@ -14,6 +16,7 @@
         </constraints>
         <properties>
           <font size="16"/>
+          <foreground color="-1"/>
           <text value="WideRoom Server"/>
         </properties>
       </component>
@@ -22,13 +25,17 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag top="3" left="10" bottom="10" right="10" weightx="1.0" weighty="5.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+        </properties>
         <border type="none"/>
         <children>
           <component id="66353" class="javax.swing.JTextArea" binding="chatOutputTextArea">
             <constraints/>
             <properties>
+              <background color="-11579569"/>
               <editable value="false"/>
+              <foreground color="-1"/>
             </properties>
           </component>
         </children>
@@ -39,6 +46,9 @@
           <gridbag top="3" left="10" bottom="10" right="10" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <background color="-14211289"/>
+          <focusPainted value="false"/>
+          <foreground color="-1"/>
           <text value="Stop"/>
         </properties>
       </component>

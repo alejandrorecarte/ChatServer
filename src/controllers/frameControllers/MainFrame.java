@@ -26,16 +26,12 @@ public class MainFrame {
     private JPanel joinPanel;
     private JLabel hostAChatServerLabel;
     private JTextField hostIpField;
-    private JTextField hostPortField;
-    private JLabel yourHostPortLabel;
     private JLabel hostPasswordLabel;
     private JButton createServerButton;
     private JLabel joinAServerLabel;
     private JLabel hostIPLabel;
     private JPasswordField hostPasswordField;
-    private JLabel hostPortLabel;
     public JTextField joinIPField;
-    private JTextField joinPortField;
     private JPasswordField joinPasswordField;
     private JLabel joinUsernameLabel;
     private JTextField joinUsernameField;
@@ -87,20 +83,16 @@ public class MainFrame {
         profiles = new ArrayList[10];
         try {
             profiles = Streams.importarPreferences();
-            hostPortField.setText(profiles[profilesComboBox.getSelectedIndex()].get(0));
-            hostPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(1));
-            joinIPField.setText(profiles[profilesComboBox.getSelectedIndex()].get(2));
-            joinPortField.setText(profiles[profilesComboBox.getSelectedIndex()].get(3));
-            joinPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(4));
-            joinUsernameField.setText(profiles[profilesComboBox.getSelectedIndex()].get(5));
+            hostPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(0));
+            joinIPField.setText(profiles[profilesComboBox.getSelectedIndex()].get(1));
+            joinPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(2));
+            joinUsernameField.setText(profiles[profilesComboBox.getSelectedIndex()].get(3));
         }catch(Exception e){
             for(int i = 0; i < profiles.length; i++){
                 profiles[i] = new ArrayList<String>();
             }
-            profiles[profilesComboBox.getSelectedIndex()].add(hostPortField.getText());
             profiles[profilesComboBox.getSelectedIndex()].add(hostPasswordField.getText());
             profiles[profilesComboBox.getSelectedIndex()].add(joinIPField.getText());
-            profiles[profilesComboBox.getSelectedIndex()].add(joinPortField.getText());
             profiles[profilesComboBox.getSelectedIndex()].add(joinPasswordField.getText());
             profiles[profilesComboBox.getSelectedIndex()].add(joinUsernameField.getText());
             e.printStackTrace();
@@ -108,7 +100,7 @@ public class MainFrame {
         createServerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if( !String.valueOf(hostPortField.getText()).equals("") && !String.valueOf(hostPasswordField.getText()).equals("")) {
+                if(!String.valueOf(hostPasswordField.getText()).equals("")) {
                     hostHashedPassword = hashPassword(hostPasswordField.getText());
                     controllers.frameControllers.HostServerFrame.startUI();
 
@@ -130,10 +122,10 @@ public class MainFrame {
         joinServerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!String.valueOf(joinIPField.getText()).equals("") && !String.valueOf(joinPortField.getText()).equals("") && !String.valueOf(joinPasswordField.getText()).equals("")  && !String.valueOf(joinUsernameField.getText()).equals("")) {
+                if(!String.valueOf(joinIPField.getText()).equals("") && !String.valueOf(joinPasswordField.getText()).equals("")  && !String.valueOf(joinUsernameField.getText()).equals("")) {
                     try {
                         clientHashedPassword = hashPassword(joinPasswordField.getText());
-                        clientSocket = new Socket(joinIPField.getText(), Integer.parseInt(joinPortField.getText()));
+                        clientSocket = new Socket(joinIPField.getText(), Streams.importarTextPortClient());
                         clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         consoleReader = new BufferedReader(new InputStreamReader(System.in));
@@ -160,21 +152,17 @@ public class MainFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     profiles[profilesComboBox.getSelectedIndex()] = new ArrayList<String>();
-                    profiles[profilesComboBox.getSelectedIndex()].set(0, hostPortField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].set(1, hostPasswordField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].set(2, joinIPField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].set(3, joinPortField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].set(4, joinPasswordField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].set(5, joinUsernameField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(0, hostPasswordField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(1, joinIPField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(2, joinPasswordField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].set(3, joinUsernameField.getText());
                     Streams.exportarPreferences(profiles);
                 }catch (IndexOutOfBoundsException ex){
                     profiles[profilesComboBox.getSelectedIndex()] = new ArrayList<String>();
-                    profiles[profilesComboBox.getSelectedIndex()].add(0, hostPortField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].add(1, hostPasswordField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].add(2, joinIPField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].add(3, joinPortField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].add(4, joinPasswordField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].add(5, joinUsernameField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(0, hostPasswordField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(1, joinIPField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(2, joinPasswordField.getText());
+                    profiles[profilesComboBox.getSelectedIndex()].add(3, joinUsernameField.getText());
                     try {
                         Streams.exportarPreferences(profiles);
                     } catch (IOException exc) {
@@ -190,17 +178,13 @@ public class MainFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    hostPortField.setText(profiles[profilesComboBox.getSelectedIndex()].get(0));
-                    hostPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(1));
-                    joinIPField.setText(profiles[profilesComboBox.getSelectedIndex()].get(2));
-                    joinPortField.setText(profiles[profilesComboBox.getSelectedIndex()].get(3));
-                    joinPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(4));
-                    joinUsernameField.setText(profiles[profilesComboBox.getSelectedIndex()].get(5));
+                    hostPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(0));
+                    joinIPField.setText(profiles[profilesComboBox.getSelectedIndex()].get(1));
+                    joinPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(2));
+                    joinUsernameField.setText(profiles[profilesComboBox.getSelectedIndex()].get(3));
                 } catch (IndexOutOfBoundsException ex) {
-                    hostPortField.setText("");
                     hostPasswordField.setText("");
                     joinIPField.setText("");
-                    joinPortField.setText("");
                     joinPasswordField.setText("");
                     joinUsernameField.setText("");
                 }
@@ -234,9 +218,9 @@ public class MainFrame {
             @Override
             protected Void doInBackground() throws Exception {
                 try {
-                    serverSocket = new ServerSocket(Integer.parseInt(hostPortField.getText()));
+                    serverSocket = new ServerSocket(Streams.importarTextPortServer());
                     serverMessages = new LinkedList<String>();
-                    serverMessages.add("Server: Chat Server is running...");
+                    serverMessages.add("Server:Chat Server is running...");
                     HandlerHostServer handlerHostServer= new HandlerHostServer(serverSocket.accept(), writers);
                     handlerHostServer.start();
                 } catch (Exception e){
@@ -267,7 +251,7 @@ public class MainFrame {
                                 }
                             } catch (SocketException e) {
                                 if (e.getMessage().equals("Socket closed"))
-                                    clientMessages.add("Server: Exited from server.");
+                                    clientMessages.add("Server:Exited from server.");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

@@ -7,6 +7,7 @@ import views.MessagePanel;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -36,7 +37,7 @@ public class JoinServerFrame {
     private JScrollPane chatOutputScrollPane;
     private ImageChooserComponent imageChooserComponent;
     private JPanel messagesPanel;
-    public String username;
+    public static String username;
     private static LinkedList<String> messages;
     private boolean access;
     private SwingWorker<Void, Void> worker;
@@ -58,6 +59,8 @@ public class JoinServerFrame {
         chatOutputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         chatOutputScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+        chatOutputScrollPane.getVerticalScrollBar().setUI(new CustomScrollBarUI());
+        chatOutputScrollPane.getVerticalScrollBar().setBackground(Color.decode("#4F4F4F"));
         access = false;
         messages  = new LinkedList<String>();
 
@@ -83,9 +86,14 @@ public class JoinServerFrame {
                     chatInputField.setText("");
                 }
                 if(imageChooserComponent.getPath()!=null){
-                    writer.println(encrypt("Server: " + username + " sent an image.", MainFrame.clientHashedPassword));
-                    MainFrame.clientMessages.add(encrypt("Server: " + username + " sent an image.", MainFrame.clientHashedPassword));
-                    try (Socket imageSocket = new Socket(MainFrame.joinIP, Streams.importarImagePortReceiverClient());
+                    writer.println(encrypt(username + ": " + username + " sent an image.", MainFrame.clientHashedPassword));
+                    MainFrame.clientMessages.add(encrypt(username + ": " + username + " sent an image.", MainFrame.clientHashedPassword));
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                    try (Socket imageSocket = new Socket(MainFrame.joinIP, Streams.importarImagePortSenderClient());
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(imageChooserComponent.getPath())) {
 
@@ -103,6 +111,8 @@ public class JoinServerFrame {
                     }
                     imageChooserComponent.setPath(null);
                     imageChooserComponent.getChooseButton().setText("Seleccionar imagen");
+                    imageChooserComponent.getChooseButton().setBackground(Color.decode("#272727"));
+                    imageChooserComponent.getChooseButton().setForeground(Color.WHITE);
                 }
             }
         });
@@ -199,34 +209,59 @@ public class JoinServerFrame {
                     username = "null";
                 }
 
-                MessagePanel messagePanel = new MessagePanel(username, message, Color.decode("#5e717f"));
-                messagePanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                if(!username.equals("Server")){
-                    messagePanel.getMessageLabel().setFont(new Font("arial", Font.PLAIN, 12));
-                }
-                if(username.equals("Local")){
-                    ImageIcon image = new ImageIcon(messagePanel.getMessageLabel().getText().split(" ")[4]);
-                    Image imageScaled = image.getImage().getScaledInstance(200,200, Image.SCALE_SMOOTH);
-                    ImageIcon scaledImageIcon = new ImageIcon(imageScaled);
-                    messagePanel.setToolTipText(messagePanel.getMessageLabel().getText());
-                    messagePanel.getMessageLabel().setText("");
-                    messagePanel.getMessageLabel().setIcon(scaledImageIcon);
-                    messagePanel.getMessageLabel().repaint();
-                    messagePanel.setColor(Color.decode("#213541"));
-                }
-                if(username.equals(this.username)){
-                    messagePanel.setColor(Color.decode("#213541"));
-                }
+                MessagePanel beforeMessagePanel = null;
 
-                if (username.equals(this.username)) {
-                    messagesPanel.add(messagePanel, new GridBagConstraints(0, messagesPanel.getComponentCount(), 1, 1, 1.0, 0.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.CENTER,
-                            new Insets(3,3,10,3), 0, 0));
-                } else {
-                    messagesPanel.add(messagePanel, new GridBagConstraints(0, messagesPanel.getComponentCount(), 1, 1, 1.0, 0.0, GridBagConstraints.SOUTHWEST, GridBagConstraints.CENTER,
-                            new Insets(3,10,3,3), 0, 0));// Alinea a la izquierda
+                try {
+                    beforeMessagePanel = ((MessagePanel) messagesPanel.getComponent(messagesPanel.getComponentCount()-1));
+                }catch (ArrayIndexOutOfBoundsException ex) {}
+
+                if(beforeMessagePanel != null && beforeMessagePanel.getUsername().equals(username)) {
+                    beforeMessagePanel.addMessage(message);
+                    if (message.contains("File saved into")) {
+                        System.out.println(message.split(" ")[4]);
+                        ImageIcon image = new ImageIcon(message.split(" ")[4]);
+                        Image imageScaled = image.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+                        ImageIcon scaledImageIcon = new ImageIcon(imageScaled);
+                        beforeMessagePanel.setToolTipText(beforeMessagePanel.getMessageLabels().get(beforeMessagePanel.getMessageLabels().size()-1).getText());
+                        beforeMessagePanel.getMessageLabels().get(beforeMessagePanel.getMessageLabels().size()-1).setText("");
+                        beforeMessagePanel.getMessageLabels().get(beforeMessagePanel.getMessageLabels().size()-1).setIcon(scaledImageIcon);
+                        beforeMessagePanel.getMessageLabels().get(beforeMessagePanel.getMessageLabels().size()-1).repaint();
+                    }
+                }else{
+                    MessagePanel messagePanel = new MessagePanel(username, message, Color.decode("#141414"));
+                    messagePanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+                    if (!username.equals("Server")) {
+                        messagePanel.setColor(Color.ORANGE);
+                    }
+                    if (username.equals(this.username)) {
+                        messagePanel.setColor(Color.decode("#000000"));
+                    }
+
+                    if (username.equals(this.username) || (message.contains("File saved into") && username.equals(this.username))) {
+                        messagesPanel.add(messagePanel, new GridBagConstraints(0, messagesPanel.getComponentCount(), 1, 1, 1.0, 0.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.CENTER,
+                                new Insets(3, 3, 10, 3), 0, 0));
+                    } else {
+                        messagesPanel.add(messagePanel, new GridBagConstraints(0, messagesPanel.getComponentCount(), 1, 1, 1.0, 0.0, GridBagConstraints.SOUTHWEST, GridBagConstraints.CENTER,
+                                new Insets(3, 10, 3, 3), 0, 0));// Alinea a la izquierda
+                    }
                 }
                 clientFrame.revalidate();
                 clientFrame.repaint();
+
+                try {
+                    if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
+                        try(ServerSocket imageSocketServer = new ServerSocket(Streams.importarImagePortReceiverClient())) {
+                            Socket imageSocket = imageSocketServer.accept();
+                            Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
+                            handlerThread.start();
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }catch(Exception e){
+                }
+
+                Thread.sleep(100);
 
                 if(keepBottom) {
                     SwingUtilities.invokeLater(() -> {
@@ -306,11 +341,49 @@ public class JoinServerFrame {
                 while ((receiveBytesRead = inputStream.read(receiveBuffer)) != -1) {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
-                MainFrame.clientMessages.add(encrypt("Local: Archivo guardado en " + fileName, MainFrame.clientHashedPassword));
+                MainFrame.clientMessages.add(encrypt(username +": File saved into " + fileName, MainFrame.clientHashedPassword));
                 socket.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    static class CustomScrollBarUI extends BasicScrollBarUI {
+        @Override
+        protected void configureScrollBarColors() {
+            this.thumbColor = Color.decode("#000000");
+        }
+
+        @Override
+        protected JButton createDecreaseButton(int orientation) {
+            return createZeroButton();
+        }
+
+        @Override
+        protected JButton createIncreaseButton(int orientation) {
+            return createZeroButton();
+        }
+
+        private JButton createZeroButton() {
+            JButton button = new JButton();
+            Dimension zeroDim = new Dimension(0, 0);
+            button.setPreferredSize(zeroDim);
+            button.setMinimumSize(zeroDim);
+            button.setMaximumSize(zeroDim);
+            return button;
+        }
+
+        @Override
+        protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // Rellenar un rectángulo redondeado con el color del thumb
+            g2.setColor(thumbColor);
+            g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10);
+
+            g2.dispose();
         }
     }
 }

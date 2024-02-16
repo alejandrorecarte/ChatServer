@@ -4,6 +4,8 @@ import controllers.Streams;
 import controllers.handlers.HandlerHostServer;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -41,6 +43,12 @@ public class HostServerFrame {
     }
 
     public HostServerFrame() {
+
+        chatOutputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        chatOutputScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        chatOutputScrollPane.getVerticalScrollBar().setUI(new CustomScrollBarUI());
+        chatOutputScrollPane.getVerticalScrollBar().setBackground(Color.decode("#4F4F4F"));
         messages = new LinkedList<String>();
         Timer timer = new Timer(100, new ActionListener() {
             @Override
@@ -77,7 +85,7 @@ public class HostServerFrame {
                     } catch (ClassNotFoundException ex) {
                         throw new RuntimeException(ex);
                     }
-                    HandlerHostServer.broadcastServerMessage("Server: Server closed");
+                    HandlerHostServer.broadcastServerMessage("Server:Server closed");
                     timer.stop();
                 }catch(Exception ex){
                     ex.printStackTrace();
@@ -160,6 +168,44 @@ public class HostServerFrame {
         public void run() {
 
             actualizarChat();
+        }
+    }
+
+    static class CustomScrollBarUI extends BasicScrollBarUI {
+        @Override
+        protected void configureScrollBarColors() {
+            this.thumbColor = Color.decode("#000000");
+        }
+
+        @Override
+        protected JButton createDecreaseButton(int orientation) {
+            return createZeroButton();
+        }
+
+        @Override
+        protected JButton createIncreaseButton(int orientation) {
+            return createZeroButton();
+        }
+
+        private JButton createZeroButton() {
+            JButton button = new JButton();
+            Dimension zeroDim = new Dimension(0, 0);
+            button.setPreferredSize(zeroDim);
+            button.setMinimumSize(zeroDim);
+            button.setMaximumSize(zeroDim);
+            return button;
+        }
+
+        @Override
+        protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // Rellenar un rectángulo redondeado con el color del thumb
+            g2.setColor(thumbColor);
+            g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10);
+
+            g2.dispose();
         }
     }
 }

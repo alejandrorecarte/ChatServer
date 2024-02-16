@@ -17,7 +17,7 @@ public class ImageChooserComponent extends JPanel {
         setLayout(new BorderLayout());
 
         chooseButton = new JButton("Seleccionar imagen");
-        chooseButton.setBackground(Color.decode("#354955"));
+        chooseButton.setBackground(Color.decode("#272727"));
         chooseButton.setForeground(Color.WHITE);
         chooseButton.addActionListener(new ActionListener() {
             @Override
@@ -42,6 +42,8 @@ public class ImageChooserComponent extends JPanel {
 
                     path = fileChooser.getSelectedFile().getAbsolutePath();
                     chooseButton.setText("Imagen seleccionada");
+                    chooseButton.setBackground(Color.ORANGE);
+                    chooseButton.setForeground(Color.BLACK);
                 }
             }
         });

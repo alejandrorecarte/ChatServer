@@ -32,8 +32,6 @@ public class SettingsFrame {
     private JCheckBox autodestroyImagesClientCheckBox;
     public static final int WIDTH = 600;
     public static final int HEIGHT = 400;
-    public static String filesDownloadsServerPath;
-    public static String filesDownloadsClientPath;
 
     public SettingsFrame() {
         try{
@@ -56,9 +54,9 @@ public class SettingsFrame {
             filesDownloadsClientPathField.setText("src/files/client/");
             textPortClientField.setText("5555");
             textPortServerField.setText("5555");
-            imagePortSenderClientField.setText("2021");
+            imagePortSenderClientField.setText("2020");
             imagePortSenderServerField.setText("2021");
-            imagePortReceiverClientField.setText("2020");
+            imagePortReceiverClientField.setText("2021");
             imagePortReceiverServerField.setText("2020");
             autodestroyImagesClientCheckBox.setSelected(true);
             autodestroyImagesServerCheckBox.setSelected(true);

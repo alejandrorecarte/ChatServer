@@ -4,7 +4,9 @@
     <constraints>
       <xy x="20" y="20" width="500" height="447"/>
     </constraints>
-    <properties/>
+    <properties>
+      <background color="-16777216"/>
+    </properties>
     <border type="none"/>
     <children>
       <component id="e3171" class="javax.swing.JLabel" binding="wideRoomSettingsLabel">
@@ -14,6 +16,7 @@
         </constraints>
         <properties>
           <font size="16"/>
+          <foreground color="-1"/>
           <text value="WideRoom Settings"/>
         </properties>
       </component>
@@ -23,6 +26,7 @@
           <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <foreground color="-1"/>
           <text value="Files downloads client path:"/>
         </properties>
       </component>
@@ -33,7 +37,10 @@
           </grid>
           <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+          <foreground color="-1"/>
+        </properties>
       </component>
       <component id="e22ec" class="javax.swing.JLabel" binding="clientSettingsLabel">
         <constraints>
@@ -42,6 +49,7 @@
         </constraints>
         <properties>
           <font size="16"/>
+          <foreground color="-1"/>
           <text value="Client settings"/>
         </properties>
       </component>
@@ -52,6 +60,7 @@
         </constraints>
         <properties>
           <font size="16"/>
+          <foreground color="-1"/>
           <text value="Server settings"/>
         </properties>
       </component>
@@ -61,6 +70,7 @@
           <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <foreground color="-1"/>
           <text value="Files downloads server path:"/>
         </properties>
       </component>
@@ -71,7 +81,10 @@
           </grid>
           <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+          <foreground color="-1"/>
+        </properties>
       </component>
       <component id="82f13" class="javax.swing.JLabel" binding="textPortServerLabel">
         <constraints>
@@ -79,6 +92,7 @@
           <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <foreground color="-1"/>
           <text value="Text port:"/>
         </properties>
       </component>
@@ -89,7 +103,10 @@
           </grid>
           <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+          <foreground color="-1"/>
+        </properties>
       </component>
       <component id="d277" class="javax.swing.JLabel" binding="imagePortSenderServerLabel">
         <constraints>
@@ -97,6 +114,7 @@
           <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <foreground color="-1"/>
           <text value="Image port (sender):"/>
         </properties>
       </component>
@@ -106,6 +124,7 @@
           <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <foreground color="-1"/>
           <text value="Image port (receiver):"/>
         </properties>
       </component>
@@ -116,7 +135,10 @@
           </grid>
           <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+          <foreground color="-1"/>
+        </properties>
       </component>
       <component id="a3a62" class="javax.swing.JTextField" binding="imagePortReceiverServerField">
         <constraints>
@@ -125,7 +147,10 @@
           </grid>
           <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+          <foreground color="-1"/>
+        </properties>
       </component>
       <component id="b1f8d" class="javax.swing.JLabel" binding="textPortClientLabel">
         <constraints>
@@ -133,6 +158,7 @@
           <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <foreground color="-1"/>
           <text value="Text port:"/>
         </properties>
       </component>
@@ -143,7 +169,10 @@
           </grid>
           <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+          <foreground color="-1"/>
+        </properties>
       </component>
       <component id="a7dbd" class="javax.swing.JLabel" binding="imagePortSenderClientLabel">
         <constraints>
@@ -151,6 +180,7 @@
           <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <foreground color="-1"/>
           <text value="Image port (sender):"/>
         </properties>
       </component>
@@ -160,6 +190,7 @@
           <gridbag top="3" left="10" bottom="3" right="3" weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <foreground color="-1"/>
           <text value="Image port (receiver):"/>
         </properties>
       </component>
@@ -170,7 +201,10 @@
           </grid>
           <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+          <foreground color="-1"/>
+        </properties>
       </component>
       <component id="b8184" class="javax.swing.JTextField" binding="imagePortReceiverClientField">
         <constraints>
@@ -179,7 +213,10 @@
           </grid>
           <gridbag top="3" left="3" bottom="3" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <background color="-11579569"/>
+          <foreground color="-1"/>
+        </properties>
       </component>
       <component id="2986" class="javax.swing.JCheckBox" binding="autodestroyImagesServerCheckBox">
         <constraints>
@@ -187,6 +224,8 @@
           <gridbag top="3" left="3" bottom="10" right="10" weightx="5.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <background color="-16777216"/>
+          <foreground color="-1"/>
           <text value="Autodestroy images"/>
         </properties>
       </component>
@@ -196,6 +235,8 @@
           <gridbag top="3" left="3" bottom="10" right="3" weightx="5.0" weighty="0.0"/>
         </constraints>
         <properties>
+          <background color="-16777216"/>
+          <foreground color="-1"/>
           <text value="Autodestroy images"/>
         </properties>
       </component>
