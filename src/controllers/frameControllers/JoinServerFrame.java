@@ -93,7 +93,7 @@ public class JoinServerFrame {
                     } catch (Exception ex){
                         ex.printStackTrace();
                     }
-                    try (Socket imageSocket = new Socket(MainFrame.joinIP, Streams.importarImagePortSenderClient());
+                    try (Socket imageSocket = new Socket(MainFrame.joinIP, MainFrame.servidorEscogido.getImagePortSender());
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(imageChooserComponent.getPath())) {
 
@@ -250,7 +250,7 @@ public class JoinServerFrame {
 
                 try {
                     if (decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[2].equals("sent")) {
-                        try(ServerSocket imageSocketServer = new ServerSocket(Streams.importarImagePortReceiverClient())) {
+                        try(ServerSocket imageSocketServer = new ServerSocket(MainFrame.servidorEscogido.getImagePortReceiver())) {
                             Socket imageSocket = imageSocketServer.accept();
                             Thread handlerThread = new Thread(new ImageConnectionHandler(imageSocket, decrypt(MainFrame.clientMessages.getLast(), MainFrame.clientHashedPassword).split(" ")[1]));
                             handlerThread.start();

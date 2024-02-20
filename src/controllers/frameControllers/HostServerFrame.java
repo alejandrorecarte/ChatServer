@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import static controllers.Encoding.encrypt;
 import static controllers.frameControllers.MainFrame.mainFrame;
 
 public class HostServerFrame {

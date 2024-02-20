@@ -2,12 +2,11 @@ package controllers.frameControllers;
 
 import controllers.Streams;
 import controllers.handlers.HandlerHostServer;
+import models.Servidor;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.SocketException;
@@ -29,19 +28,20 @@ public class MainFrame {
     private JLabel hostPasswordLabel;
     private JButton createServerButton;
     private JLabel joinAServerLabel;
-    private JLabel hostIPLabel;
     private JPasswordField hostPasswordField;
-    public JTextField joinIPField;
-    private JPasswordField joinPasswordField;
-    private JLabel joinUsernameLabel;
-    private JTextField joinUsernameField;
     private JButton joinServerButton;
-    private JLabel joinPasswordLabel;
     private JPanel mainPanel;
-    private JButton savePreferencesButton;
     private JComboBox profilesComboBox;
     private JLabel wideRoomLabel;
     private JButton settingsButton;
+    private JButton addServerButton;
+    private JScrollPane serversScrollPane;
+    private JPanel serversPanel;
+    private JButton removeServerButton;
+    private JButton modifyServerButton;
+    private JTextField usernameField;
+    private JLabel usernameLabel;
+    private JButton actualizarListaButton;
     public static LinkedList<String> serverMessages = new LinkedList<String>();
     public static LinkedList<String> clientMessages = new LinkedList<String>();
     private static final Set<PrintWriter> writers = new HashSet<>();
@@ -54,6 +54,8 @@ public class MainFrame {
     public static String hostHashedPassword;
     public static String joinIP;
     private ServerSocket serverSocket;
+    public static ArrayList<Servidor> servidores;
+    public static Servidor servidorEscogido;
 
     public static void startUI() {
         mainFrame = new JFrame("WideRoom");
@@ -65,6 +67,18 @@ public class MainFrame {
     }
 
     public MainFrame() {
+        try{
+            usernameField.setText(Streams.importarUsername());
+        }catch(Exception ex){
+        }
+
+        try{
+            servidores = Streams.importarServidores();
+        }catch (Exception e){
+            servidores = new ArrayList<Servidor>();
+        }
+
+        actualizarServerList();
 
         File filesDir = new File("src/files");
         if(!filesDir.exists()){
@@ -80,23 +94,6 @@ public class MainFrame {
         }
 
 
-        profiles = new ArrayList[10];
-        try {
-            profiles = Streams.importarPreferences();
-            hostPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(0));
-            joinIPField.setText(profiles[profilesComboBox.getSelectedIndex()].get(1));
-            joinPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(2));
-            joinUsernameField.setText(profiles[profilesComboBox.getSelectedIndex()].get(3));
-        }catch(Exception e){
-            for(int i = 0; i < profiles.length; i++){
-                profiles[i] = new ArrayList<String>();
-            }
-            profiles[profilesComboBox.getSelectedIndex()].add(hostPasswordField.getText());
-            profiles[profilesComboBox.getSelectedIndex()].add(joinIPField.getText());
-            profiles[profilesComboBox.getSelectedIndex()].add(joinPasswordField.getText());
-            profiles[profilesComboBox.getSelectedIndex()].add(joinUsernameField.getText());
-            e.printStackTrace();
-        }
         createServerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -122,16 +119,16 @@ public class MainFrame {
         joinServerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!String.valueOf(joinIPField.getText()).equals("") && !String.valueOf(joinPasswordField.getText()).equals("")  && !String.valueOf(joinUsernameField.getText()).equals("")) {
+                if(!String.valueOf(usernameField.getText()).equals("") && servidorEscogido != null) {
                     try {
-                        clientHashedPassword = hashPassword(joinPasswordField.getText());
-                        clientSocket = new Socket(joinIPField.getText(), Streams.importarTextPortClient());
+                        clientHashedPassword = servidorEscogido.getHashedPassword();
+                        clientSocket = new Socket(servidorEscogido.getIp(), servidorEscogido.getTextPort());
                         clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         consoleReader = new BufferedReader(new InputStreamReader(System.in));
-                        controllers.frameControllers.JoinServerFrame.startUI(joinUsernameField.getText().replace(" ", ""), clientWriter);
+                        controllers.frameControllers.JoinServerFrame.startUI(usernameField.getText().replace(" ", ""), clientWriter);
                         clientMessages = new LinkedList<String>();
-                        joinIP = joinIPField.getText();
+                        joinIP = servidorEscogido.getIp();
                         joinServer();
                     } catch (Exception ex){
                         ex.printStackTrace();
@@ -147,50 +144,6 @@ public class MainFrame {
             }
         });
 
-        savePreferencesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    profiles[profilesComboBox.getSelectedIndex()] = new ArrayList<String>();
-                    profiles[profilesComboBox.getSelectedIndex()].set(0, hostPasswordField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].set(1, joinIPField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].set(2, joinPasswordField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].set(3, joinUsernameField.getText());
-                    Streams.exportarPreferences(profiles);
-                }catch (IndexOutOfBoundsException ex){
-                    profiles[profilesComboBox.getSelectedIndex()] = new ArrayList<String>();
-                    profiles[profilesComboBox.getSelectedIndex()].add(0, hostPasswordField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].add(1, joinIPField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].add(2, joinPasswordField.getText());
-                    profiles[profilesComboBox.getSelectedIndex()].add(3, joinUsernameField.getText());
-                    try {
-                        Streams.exportarPreferences(profiles);
-                    } catch (IOException exc) {
-                        exc.printStackTrace();
-                    }
-                }catch (Exception ex){
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-        profilesComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    hostPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(0));
-                    joinIPField.setText(profiles[profilesComboBox.getSelectedIndex()].get(1));
-                    joinPasswordField.setText(profiles[profilesComboBox.getSelectedIndex()].get(2));
-                    joinUsernameField.setText(profiles[profilesComboBox.getSelectedIndex()].get(3));
-                } catch (IndexOutOfBoundsException ex) {
-                    hostPasswordField.setText("");
-                    joinIPField.setText("");
-                    joinPasswordField.setText("");
-                    joinUsernameField.setText("");
-                }
-            }
-        });
-
         hostPasswordField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -201,16 +154,91 @@ public class MainFrame {
             }
         });
 
-
-        joinPasswordField.addKeyListener(new KeyAdapter() {
+        addServerButton.addActionListener(new ActionListener() {
             @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                if(e.getKeyCode() == KeyEvent.VK_ENTER){
-                    joinServerButton.doClick();
+            public void actionPerformed(ActionEvent e) {
+                AddServerFrame.startUI();
+            }
+        });
+
+        removeServerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                servidores.remove(servidorEscogido);
+                servidorEscogido = null;
+                actualizarServerList();
+                try {
+                    Streams.exportarServidores(servidores);
+                }catch (Exception ex){
+                    ex.printStackTrace();
                 }
             }
         });
+
+        modifyServerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(servidorEscogido != null){
+                    ModifyServerFrame.startUI(servidorEscogido);
+                }
+            }
+        });
+
+        actualizarListaButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarServerList();
+            }
+        });
+
+        mainFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosed(e);
+                try {
+                    Streams.exportarUsername(usernameField.getText());
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void actualizarServerList() {
+        try {
+            serversPanel.removeAll();
+            serversPanel.setLayout(new BoxLayout(serversPanel, BoxLayout.Y_AXIS));
+            for (int i = 0; i < servidores.size(); i++) {
+                final int finalI = i;
+                JButton b = new JButton(servidores.get(i).getName());
+                serversPanel.add(b);
+                b.setBackground(Color.decode("#272727"));
+                b.setForeground(Color.WHITE);
+                b.setFocusPainted(false);
+                b.setMaximumSize(new Dimension(Integer.MAX_VALUE, b.getPreferredSize().height));
+
+                b.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        for(int i = 0; i < serversPanel.getComponentCount(); i++){
+                            serversPanel.getComponent(i).setBackground(Color.decode("#272727"));
+                            serversPanel.getComponent(i).setForeground(Color.WHITE);
+                        }
+                        b.setBackground(Color.ORANGE);
+                        b.setForeground(Color.BLACK);
+                        servidorEscogido = servidores.get(finalI);
+                        modifyServerButton.setEnabled(true);
+                        removeServerButton.setEnabled(true);
+                        joinServerButton.setEnabled(true);
+                    }
+                });
+            }
+
+            mainFrame.revalidate();
+            mainFrame.repaint();
+        }catch(Exception e){
+            System.out.println("Lista de servidores vacía");
+        }
     }
 
     private void startServer() {
@@ -242,7 +270,7 @@ public class MainFrame {
             protected Void doInBackground() throws Exception {
                 try {
                     clientMessages = new LinkedList<String>();
-                    String username = joinUsernameField.getText();
+                    String username = usernameField.getText();
                         Thread receiverThread = new Thread(() -> {
                             try {
                                 String serverMessage;

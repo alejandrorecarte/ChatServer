@@ -22,10 +22,7 @@ public class SettingsFrame {
     private JTextField imagePortReceiverServerField;
     private JLabel imagePortSenderServerLabel;
     private JLabel imagePortReceiverServerLabel;
-    private JLabel textPortClientLabel;
     private JTextField textPortClientField;
-    private JLabel imagePortReceiverClientLabel;
-    private JLabel imagePortSenderClientLabel;
     private JTextField imagePortSenderClientField;
     private JTextField imagePortReceiverClientField;
     private JCheckBox autodestroyImagesServerCheckBox;
@@ -37,11 +34,8 @@ public class SettingsFrame {
         try{
             filesDownloadsServerPathField.setText(Streams.importarFilesDownloadsServerPath());
             filesDownloadsClientPathField.setText(Streams.importarFilesDownloadsClientPath());
-            textPortClientField.setText(String.valueOf(Streams.importarTextPortClient()));
             textPortServerField.setText(String.valueOf(Streams.importarTextPortServer()));
-            imagePortSenderClientField.setText(String.valueOf(Streams.importarImagePortSenderClient()));
             imagePortSenderServerField.setText(String.valueOf(Streams.importarImagePortSenderServer()));
-            imagePortReceiverClientField.setText(String.valueOf(Streams.importarImagePortReceiverClient()));
             imagePortReceiverServerField.setText(String.valueOf(Streams.importarImagePortReceiverServer()));
             if(Streams.importarAutodestroyImagesClient()) {
                 autodestroyImagesClientCheckBox.setSelected(true);
@@ -70,11 +64,8 @@ public class SettingsFrame {
                     try {
                         Streams.exportarFilesDownloadsServerPath(filesDownloadsServerPathField.getText());
                         Streams.exportarFilesDownloadsClientPath(filesDownloadsClientPathField.getText());
-                        Streams.exportarTextPortClient(Integer.parseInt(textPortClientField.getText()));
                         Streams.exportarTextPortServer(Integer.parseInt(textPortServerField.getText()));
-                        Streams.exportarImagePortSenderClient(Integer.parseInt(imagePortSenderClientField.getText()));
                         Streams.exportarImagePortSenderServer(Integer.parseInt(imagePortSenderServerField.getText()));
-                        Streams.exportarImagePortReceiverClient(Integer.parseInt(imagePortReceiverClientField.getText()));
                         Streams.exportarImagePortReceiverServer(Integer.parseInt(imagePortReceiverServerField.getText()));
                         Streams.exportarAutodestroyImagesClient(autodestroyImagesClientCheckBox.isSelected());
                         Streams.exportarAutodestroyImagesServer(autodestroyImagesServerCheckBox.isSelected());
