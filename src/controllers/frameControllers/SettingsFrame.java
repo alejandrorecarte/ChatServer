@@ -46,11 +46,8 @@ public class SettingsFrame {
         }catch(Exception e){
             filesDownloadsServerPathField.setText("src/files/server/");
             filesDownloadsClientPathField.setText("src/files/client/");
-            textPortClientField.setText("5555");
             textPortServerField.setText("5555");
-            imagePortSenderClientField.setText("2020");
             imagePortSenderServerField.setText("2021");
-            imagePortReceiverClientField.setText("2021");
             imagePortReceiverServerField.setText("2020");
             autodestroyImagesClientCheckBox.setSelected(true);
             autodestroyImagesServerCheckBox.setSelected(true);

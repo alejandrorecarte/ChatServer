@@ -155,7 +155,9 @@ public class HandlerHostServer extends Thread {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
                 socket.close();
+                Thread.sleep(100);
                 for(int i = 0; i < connectedIPs.size(); i++) {
+                    System.out.println(connectedIPs.get(i));
                     try (Socket imageSocket = new Socket(connectedIPs.get(i), Streams.importarImagePortSenderServer());
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(fileName)) {

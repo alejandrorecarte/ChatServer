@@ -163,8 +163,8 @@ public class JoinServerFrame {
                         }
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
-                    } catch (ClassNotFoundException ex) {
-                        throw new RuntimeException(ex);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                 } else {
                     clientFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

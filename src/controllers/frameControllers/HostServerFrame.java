@@ -61,6 +61,7 @@ public class HostServerFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     try {
+                        serverFrame.dispose();
                         if(Streams.importarAutodestroyImagesServer()) {
                             Path directorioPath = Paths.get(Streams.importarFilesDownloadsServerPath());
 
@@ -81,15 +82,14 @@ public class HostServerFrame {
                         }
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
-                    } catch (ClassNotFoundException ex) {
-                        throw new RuntimeException(ex);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                     HandlerHostServer.broadcastServerMessage("Server:Server closed");
                     timer.stop();
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
-                serverFrame.dispose();
 
             }
         });
