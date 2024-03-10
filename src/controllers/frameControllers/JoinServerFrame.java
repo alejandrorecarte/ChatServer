@@ -1,5 +1,6 @@
 package controllers.frameControllers;
 
+import controllers.Misc;
 import controllers.Streams;
 import org.w3c.dom.ls.LSOutput;
 import views.ImageChooserComponent;
@@ -139,33 +140,10 @@ public class JoinServerFrame {
             public void windowClosing(WindowEvent e) {
                 int confirm = JOptionPane.showConfirmDialog(clientFrame, "Do you want to exit this chat server?", "Exit confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
-                    sendMessage(encrypt("Server: " + username + " left the server.", MainFrame.clientHashedPassword), writer);
+                    sendMessage(encrypt("Server:" + Misc.getDate() +":"  + username + " left the server.", MainFrame.clientHashedPassword), writer);
                     clientFrame.dispose();
-                    try {
-                        if(Streams.importarAutodestroyImagesClient()) {
-                            Path directorioPath = Paths.get(Streams.importarFilesDownloadsClientPath());
+                    timer.stop();
 
-                            if (!Files.exists(directorioPath)) {
-                                System.out.println("El directorio especificado no existe.");
-                                return;
-                            }
-                            Files.walkFileTree(directorioPath, new SimpleFileVisitor<Path>() {
-                                @Override
-                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                                    if (Files.isRegularFile(file) && file.toString().toLowerCase().endsWith(".jpg")) {
-                                        Files.delete(file);
-                                        System.out.println("Archivo eliminado: " + file);
-                                    }
-                                    return FileVisitResult.CONTINUE;
-                                }
-                            });
-                            timer.stop();
-                        }
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
                 } else {
                     clientFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
                 }
@@ -175,8 +153,8 @@ public class JoinServerFrame {
 
     private void sendMessage(PrintWriter writer){
         if(!chatInputField.getText().equals("")) {
-            writer.println(encrypt(username + ": " + chatInputField.getText(), MainFrame.clientHashedPassword));
-            MainFrame.clientMessages.add(encrypt(username + ": " + chatInputField.getText(), MainFrame.clientHashedPassword));
+            writer.println(encrypt(username + ":" + Misc.getDate() +":" + chatInputField.getText(), MainFrame.clientHashedPassword));
+            MainFrame.clientMessages.add(encrypt(username + ":" + Misc.getDate() +":" +  chatInputField.getText(), MainFrame.clientHashedPassword));
             chatInputField.setText("");
         }
     }
@@ -200,12 +178,16 @@ public class JoinServerFrame {
                 String encryptedMessage = JoinServerFrame.messages.getLast();
                 String decryptedMessage = decrypt(encryptedMessage, MainFrame.clientHashedPassword);
                 String username;
+                String date;
                 String message;
+                System.out.println(decryptedMessage);
                 try {
-                    message = decryptedMessage.split(":")[1];
+                    message = decryptedMessage.split(":")[3];
+                    date = decryptedMessage.split(":")[1] + ":" + decryptedMessage.split(":")[2] ;
                     username = decryptedMessage.split(":")[0];
                 } catch (Exception e){
                     message = decryptedMessage;
+                    date="null";
                     username = "null";
                 }
 
@@ -215,8 +197,21 @@ public class JoinServerFrame {
                     beforeMessagePanel = ((MessagePanel) messagesPanel.getComponent(messagesPanel.getComponentCount()-1));
                 }catch (ArrayIndexOutOfBoundsException ex) {}
 
-                if(beforeMessagePanel != null && beforeMessagePanel.getUsername().equals(username)) {
+                //Si el mensaje lo envía el mismo usuario que el anterior lo anida en el mismo panel
+                if(beforeMessagePanel != null && beforeMessagePanel.getUsername().equals(username) || username.equals("Local")) {
+                    //Lo anida
                     beforeMessagePanel.addMessage(message);
+
+                    //Comprueba si la fecha coincide con la última fecha impresa
+                    if(beforeMessagePanel.getMessageLabels().get(beforeMessagePanel.getMessageLabels().size()-2).getText().equals(date)){
+                        beforeMessagePanel.getMessagesPanel().remove(beforeMessagePanel.getMessageLabels().size()-2);
+                        beforeMessagePanel.getMessageLabels().remove(beforeMessagePanel.getMessageLabels().size()-2);
+                        beforeMessagePanel.addDate(date);
+                    }else{
+                        beforeMessagePanel.addDate(date);
+                    }
+
+                    //Comprobación por si es una imagen
                     if (message.contains("File saved into")) {
                         System.out.println(message.split(" ")[4]);
                         ImageIcon image = new ImageIcon(message.split(" ")[4]);
@@ -227,14 +222,15 @@ public class JoinServerFrame {
                         beforeMessagePanel.getMessageLabels().get(beforeMessagePanel.getMessageLabels().size()-1).setIcon(scaledImageIcon);
                         beforeMessagePanel.getMessageLabels().get(beforeMessagePanel.getMessageLabels().size()-1).repaint();
                     }
-                }else{
-                    MessagePanel messagePanel = new MessagePanel(username, message, Color.decode("#141414"));
+                }
+                else{
+                    MessagePanel messagePanel = new MessagePanel(username, message, date,Color.decode("#141414"), Color.WHITE);
                     messagePanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                    if (!username.equals("Server")) {
-                        messagePanel.setColor(Color.ORANGE);
+                    if (username.equals("Server")) {
+                        messagePanel.setColor(Color.ORANGE, Color.BLACK);
                     }
                     if (username.equals(this.username)) {
-                        messagePanel.setColor(Color.decode("#000000"));
+                        messagePanel.setColor(Color.decode("#000000"), Color.WHITE);
                     }
 
                     if (username.equals(this.username) || (message.contains("File saved into") && username.equals(this.username))) {
@@ -242,7 +238,7 @@ public class JoinServerFrame {
                                 new Insets(3, 3, 10, 3), 0, 0));
                     } else {
                         messagesPanel.add(messagePanel, new GridBagConstraints(0, messagesPanel.getComponentCount(), 1, 1, 1.0, 0.0, GridBagConstraints.SOUTHWEST, GridBagConstraints.CENTER,
-                                new Insets(3, 10, 3, 3), 0, 0));// Alinea a la izquierda
+                                new Insets(3, 10, 3, 3), 0, 0));
                     }
                 }
                 clientFrame.revalidate();
@@ -291,8 +287,8 @@ public class JoinServerFrame {
                     messagesPanel.removeAll();
                     messages = new LinkedList<String>();
                     MainFrame.clientMessages = new LinkedList<String>();
-                    MainFrame.clientMessages.add(encrypt("Server: Welcome " + username + " to the server!", MainFrame.clientHashedPassword));
-                    sendMessage(encrypt("Server: " + username + " joined the server.", MainFrame.clientHashedPassword), writer);
+                    MainFrame.clientMessages.add(encrypt("Server:" + Misc.getDate() +":" + "Welcome " + username + " to the server!", MainFrame.clientHashedPassword));
+                    sendMessage(encrypt("Server:"+ Misc.getDate() +":" + username + " joined the server.", MainFrame.clientHashedPassword), writer);
                     clientFrame.setVisible(true);
                 }
             } catch (NoSuchElementException e) {
@@ -333,7 +329,7 @@ public class JoinServerFrame {
                 InputStream inputStream = socket.getInputStream();
                 Calendar calendar = Calendar.getInstance();
                 String fileName = Streams.importarFilesDownloadsClientPath() + "/image" + sender + calendar.get(Calendar.DAY_OF_MONTH) + calendar.get(Calendar.MONTH)
-                        + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.HOUR) + calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + ".jpg";
+                        + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.HOUR_OF_DAY) + calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + ".jpg";
                 FileOutputStream fileOutputStream = new FileOutputStream(fileName);
                 byte[] receiveBuffer = new byte[1024];
                 int receiveBytesRead;
@@ -341,7 +337,7 @@ public class JoinServerFrame {
                 while ((receiveBytesRead = inputStream.read(receiveBuffer)) != -1) {
                     fileOutputStream.write(receiveBuffer, 0, receiveBytesRead);
                 }
-                MainFrame.clientMessages.add(encrypt(username +": File saved into " + fileName, MainFrame.clientHashedPassword));
+                MainFrame.clientMessages.add(encrypt( "Local:" + Misc.getDate() +":File saved into " + fileName, MainFrame.clientHashedPassword));
                 socket.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -381,7 +377,7 @@ public class JoinServerFrame {
 
             // Rellenar un rectángulo redondeado con el color del thumb
             g2.setColor(thumbColor);
-            g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10);
+            g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 20, 20);
 
             g2.dispose();
         }

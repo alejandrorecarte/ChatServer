@@ -1,5 +1,6 @@
 package controllers.frameControllers;
 
+import controllers.Misc;
 import controllers.Streams;
 import controllers.handlers.HandlerHostServer;
 import models.Servidor;
@@ -10,6 +11,9 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 import java.util.*;
 import java.net.Socket;
 
@@ -197,6 +201,8 @@ public class MainFrame {
                 super.windowClosed(e);
                 try {
                     Streams.exportarUsername(usernameField.getText());
+                    Misc.removeClientImages();
+                    Misc.removeServerImages();
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
@@ -249,8 +255,9 @@ public class MainFrame {
                     serverSocket = new ServerSocket(Streams.importarTextPortServer());
                     serverMessages = new LinkedList<String>();
                     serverMessages.add("Server:Chat Server is running...");
-                    HandlerHostServer handlerHostServer= new HandlerHostServer(serverSocket.accept(), writers);
-                    handlerHostServer.start();
+                    while (true) {
+                        new HandlerHostServer(serverSocket.accept(), writers).start();
+                    }
                 } catch (Exception e){
                     e.printStackTrace();
                 }

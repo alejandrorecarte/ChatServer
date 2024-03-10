@@ -11,14 +11,19 @@ public class MessagePanel extends JPanel {
 
     private ArrayList<JLabel> messageLabels = new ArrayList<>();
 
-    public MessagePanel(String username, String message, Color color) {
+    private Color foreground;
+
+    public MessagePanel(String username, String message, String date, Color color, Color foreground) {
+        this.foreground = foreground;
+
         setLayout(new BorderLayout());
         setBackground(color);
         setOpaque(false); // Establecer opacidad a falso para que se pueda ver el fondo redondeado
 
         // Panel para el nombre de usuario
         usernameLabel = new JLabel(username);
-        usernameLabel.setForeground(Color.WHITE);
+        usernameLabel.setFont(new Font("arial", Font.BOLD, 18));
+        usernameLabel.setForeground(foreground);
         add(usernameLabel, BorderLayout.NORTH);
 
         // Panel para los mensajes
@@ -28,10 +33,19 @@ public class MessagePanel extends JPanel {
         add(messagesPanel, BorderLayout.CENTER);
 
         addMessage(message);
+        addDate(date);
     }
 
     public String getUsername(){
         return usernameLabel.getText();
+    }
+
+    public void addDate(String date){
+        JLabel dateLabel = new JLabel(date);
+        dateLabel.setFont(new Font("arial", Font.ITALIC, 10));
+        dateLabel.setForeground(foreground);
+        messagesPanel.add(dateLabel);
+        messageLabels.add(dateLabel);
     }
 
     public void addMessage(String message){
@@ -42,7 +56,8 @@ public class MessagePanel extends JPanel {
             }
         }
         JLabel messageLabel = new JLabel(message);
-        messageLabel.setForeground(Color.WHITE);
+        messageLabel.setForeground(foreground);
+        messageLabel.setFont(new Font("arial", Font.PLAIN, 16));
         messagesPanel.add(messageLabel);
         messageLabels.add(messageLabel);
         revalidate(); // Revalidar el componente para actualizar la disposición
@@ -57,8 +72,14 @@ public class MessagePanel extends JPanel {
         this.messageLabels = messageLabels;
     }
 
-    public void setColor(Color color) {
-        setBackground(color);
+    public void setColor(Color background, Color foreground) {
+        this.foreground = foreground;
+        setBackground(background);
+
+        usernameLabel.setForeground(foreground);
+        for(int i = 0; i < messageLabels.size(); i++){
+            messageLabels.get(i).setForeground(foreground);
+        }
     }
 
     public JLabel getUsernameLabel() {

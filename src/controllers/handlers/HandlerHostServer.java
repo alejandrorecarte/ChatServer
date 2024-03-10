@@ -9,10 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -143,9 +140,10 @@ public class HandlerHostServer extends Thread {
         @Override
         public void run() {
             try {
+                Calendar calendar = Calendar.getInstance();
                 InputStream inputStream = socket.getInputStream();
-                String fileName = Streams.importarFilesDownloadsServerPath() + "/image"+ sender +Date.from(Instant.now()).getDate()+Date.from(Instant.now()).getMonth()
-                        +Date.from(Instant.now()).getYear()+"_"+Date.from(Instant.now()).getHours()+Date.from(Instant.now()).getMinutes()+Date.from(Instant.now()).getSeconds()+".jpg";
+                String fileName = Streams.importarFilesDownloadsServerPath() + "/image" + sender + calendar.get(Calendar.DAY_OF_MONTH) + calendar.get(Calendar.MONTH)
+                        + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.HOUR_OF_DAY) + calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + ".jpg";
                 FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 
                 byte[] receiveBuffer = new byte[1024];
@@ -157,7 +155,6 @@ public class HandlerHostServer extends Thread {
                 socket.close();
                 Thread.sleep(100);
                 for(int i = 0; i < connectedIPs.size(); i++) {
-                    System.out.println(connectedIPs.get(i));
                     try (Socket imageSocket = new Socket(connectedIPs.get(i), Streams.importarImagePortSenderServer());
                          OutputStream outputStream = imageSocket.getOutputStream();
                          FileInputStream fileInputStream = new FileInputStream(fileName)) {

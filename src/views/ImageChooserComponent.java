@@ -17,6 +17,7 @@ public class ImageChooserComponent extends JPanel {
         setLayout(new BorderLayout());
 
         chooseButton = new JButton("Seleccionar imagen");
+        chooseButton.setFont(new Font("arial", Font.PLAIN, 16));
         chooseButton.setBackground(Color.decode("#272727"));
         chooseButton.setForeground(Color.WHITE);
         chooseButton.addActionListener(new ActionListener() {

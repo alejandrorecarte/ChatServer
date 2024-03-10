@@ -47,6 +47,7 @@
           <background color="-14211289"/>
           <borderPainted value="true"/>
           <focusPainted value="false"/>
+          <font size="16"/>
           <foreground color="-1"/>
           <text value="Send"/>
         </properties>
@@ -58,6 +59,7 @@
         </constraints>
         <properties>
           <background color="-14211289"/>
+          <font size="16"/>
           <foreground color="-1"/>
         </properties>
       </component>
@@ -69,9 +71,9 @@
         <properties>
           <background color="-11579569"/>
           <caretColor color="-14600894"/>
-          <font/>
+          <font size="16"/>
           <foreground color="-1"/>
-          <margin top="2" left="6" bottom="2" right="6"/>
+          <margin top="3" left="8" bottom="3" right="8"/>
         </properties>
       </component>
     </children>

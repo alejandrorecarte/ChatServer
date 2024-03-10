@@ -59,32 +59,8 @@ public class HostServerFrame {
         stopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                serverFrame.dispose();
                 try {
-                    try {
-                        serverFrame.dispose();
-                        if(Streams.importarAutodestroyImagesServer()) {
-                            Path directorioPath = Paths.get(Streams.importarFilesDownloadsServerPath());
-
-                            if (!Files.exists(directorioPath)) {
-                                System.out.println("El directorio especificado no existe.");
-                                return;
-                            }
-                            Files.walkFileTree(directorioPath, new SimpleFileVisitor<Path>() {
-                                @Override
-                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                                    if (Files.isRegularFile(file) && file.toString().toLowerCase().endsWith(".jpg")) {
-                                        Files.delete(file);
-                                        System.out.println("Archivo eliminado: " + file);
-                                    }
-                                    return FileVisitResult.CONTINUE;
-                                }
-                            });
-                        }
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
                     HandlerHostServer.broadcastServerMessage("Server:Server closed");
                     timer.stop();
                 }catch(Exception ex){
@@ -202,7 +178,7 @@ public class HostServerFrame {
 
             // Rellenar un rectángulo redondeado con el color del thumb
             g2.setColor(thumbColor);
-            g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10);
+            g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 20, 20);
 
             g2.dispose();
         }
